@@ -216,8 +216,8 @@ The priority is to build a focused and reliable application that successfully pe
 **Sepehr Bakhshivash**
 
 Aspiring Data Analyst / Data Scientist
-- GitHub: https://github.com/Sephernie
-- LinkedIn: https://linkedin.com/in/sepehr-bakhshivash-29121841a
+- [`LinkedIn`](https://linkedin.com/in/sepehr-bakhshivash-29121841a)
+- [`GitHub`](https://github.com/Sephernie)
 
 ---
 
