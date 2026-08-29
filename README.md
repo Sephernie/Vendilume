@@ -163,25 +163,29 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 ## Project Status
 
+## Project Status
+
 **Phase 1 — Project Foundation:** Complete
 
 **Phase 2 — Requirements & Software Design:** Complete
 
-**Current Stage:** Phase 3 — Django Foundation
+**Phase 3 — Django Foundation:** Complete
 
-The project's purpose, scope, requirements, technology stack, development roadmap, supported data structure, system architecture, user interactions, and initial PostgreSQL design have been established.
+**Current Stage:** Phase 4 — PostgreSQL & Data Models
 
-Phase 3 focuses on creating the first functioning Vendilume Django application.
+Vendilume now runs as a functioning Django application and displays its first page in the browser.
 
-The main objectives of Phase 3 are:
+Phase 3 established:
 
-* Create the Python environment
-* Install Django
-* Create the Django project and initial application structure
-* Configure the initial project settings
-* Create the first URL and view
-* Run the development server
-* Verify that Vendilume displays its first page in the browser
+* An isolated Python development environment
+* Recorded Python dependencies
+* The Django project and initial `core` application
+* Environment-based settings and protected secrets
+* Initial URL routing and home view
+* A reusable base template and basic navigation
+* An automated home-page test
+
+Phase 4 will introduce PostgreSQL, connect it to Django, and implement the database models defined during Phase 2.
 
 ---
 
@@ -192,6 +196,27 @@ The repository currently follows this structure:
 ```text
 Vendilume/
 │
+├── config/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+│
+├── core/
+│   ├── migrations/
+│   │   └── __init__.py
+│   ├── templates/
+│   │   └── core/
+│   │       └── home.html
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+│
 ├── docs/
 │   ├── PROJECT_OVERVIEW.md
 │   ├── REQUIREMENTS.md
@@ -201,12 +226,17 @@ Vendilume/
 │   ├── SYSTEM_DESIGN.md
 │   └── DATABASE_DESIGN.md
 │
-├── README.md
+├── templates/
+│   └── base.html
+│
+├── .env.example
+├── .gitattributes
 ├── .gitignore
-└── LICENSE
+├── LICENSE
+├── manage.py
+├── README.md
+└── requirements.txt
 ```
-
-The structure will expand as implementation begins.
 
 ---
 

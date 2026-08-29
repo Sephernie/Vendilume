@@ -122,18 +122,34 @@ Create the first functioning Vendilume web application.
 
 ### Tasks
 
-* Create the Python environment.
-* Install Django.
+* Create an isolated Python environment.
+* Install Django and record project dependencies.
 * Create the Django project.
-* Create the initial application structure.
-* Configure project settings.
+* Create the initial `core` application.
+* Configure environment-based project settings.
+* Protect the Django secret key using an ignored `.env` file.
+* Provide a safe `.env.example`.
 * Create the first URL and view.
+* Create the home-page template.
+* Establish a reusable base template and basic navigation.
+* Add an initial automated test.
 * Run the development server.
 * Verify the application in the browser.
 
+### Deliverables
+
+```text
+config/
+core/
+templates/
+.env.example
+manage.py
+requirements.txt
+```
+
 ### Completion
 
-Vendilume successfully runs as a Django application and displays its first page.
+Phase 3 is complete. Vendilume successfully runs as a Django application, displays its first page, loads configuration from environment variables, and passes its initial automated test.
 
 ---
 
@@ -166,15 +182,14 @@ Create the main application pages and navigation.
 
 ### Tasks
 
-* Configure Django templates.
+* Expand the shared template structure and base layout.
 * Add Bootstrap.
-* Create the main layout.
-* Build the home page.
+* Refine the home page.
 * Build the dataset upload page.
 * Build the dataset history page.
 * Build the dataset details page.
 * Add confirmed dataset deletion.
-* Add application navigation.
+* Expand application navigation for the main application areas.
 * Add basic success and error messages.
 
 ### Completion
