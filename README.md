@@ -119,8 +119,11 @@ Detailed project documentation is available in the [`docs`](docs/) directory.
 | [`REQUIREMENTS.md`](docs/REQUIREMENTS.md)         | Functional and non-functional system requirements      |
 | [`TECHNOLOGY_STACK.md`](docs/TECHNOLOGY_STACK.md) | Selected technologies, responsibilities, and reasoning |
 | [`PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)         | Development phases, tasks, and planned deliverables    |
+| [`DATA_SPECIFICATION.md`](docs/DATA_SPECIFICATION.md) | Supported CSV structure, validation rules, and calculated fields |
+| [`SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md)       | System architecture, component responsibilities, and user interactions |
+| [`DATABASE_DESIGN.md`](docs/DATABASE_DESIGN.md)   | PostgreSQL schema, constraints, ERD, and analytics view |
 
-Additional design, testing, and implementation documentation will be added as development progresses.
+Testing and implementation documentation will be added as development progresses.
 
 ---
 
@@ -160,22 +163,25 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 ## Project Status
 
-**Current Stage:** Phase 2 — Requirements & Software Design
+**Phase 1 — Project Foundation:** Complete
 
-**Phase 1 — Project Foundation** has been completed. The project's purpose, scope, requirements, technology stack, development roadmap, and initial repository structure have been established.
+**Phase 2 — Requirements & Software Design:** Complete
 
-Phase 2 focuses on designing how Vendilume will behave and how its major components will interact before implementation begins.
+**Current Stage:** Phase 3 — Django Foundation
 
-The main objectives of Phase 2 are:
+The project's purpose, scope, requirements, technology stack, development roadmap, supported data structure, system architecture, user interactions, and initial PostgreSQL design have been established.
 
-* Review and finalize the system requirements
-* Define the supported sales-data structure
-* Design the system architecture
-* Design the PostgreSQL data model
-* Define the major user interactions
-* Create the necessary software design diagrams
+Phase 3 focuses on creating the first functioning Vendilume Django application.
 
-Application implementation begins after the software design stage has been completed.
+The main objectives of Phase 3 are:
+
+* Create the Python environment
+* Install Django
+* Create the Django project and initial application structure
+* Configure the initial project settings
+* Create the first URL and view
+* Run the development server
+* Verify that Vendilume displays its first page in the browser
 
 ---
 
@@ -190,7 +196,10 @@ Vendilume/
 │   ├── PROJECT_OVERVIEW.md
 │   ├── REQUIREMENTS.md
 │   ├── TECHNOLOGY_STACK.md
-│   └── PROJECT_PLAN.md
+│   ├── PROJECT_PLAN.md
+│   ├── DATA_SPECIFICATION.md
+│   ├── SYSTEM_DESIGN.md
+│   └── DATABASE_DESIGN.md
 │
 ├── README.md
 ├── .gitignore

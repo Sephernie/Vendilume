@@ -99,6 +99,15 @@ Potential diagrams include:
 
 Only diagrams that contribute to understanding the system should be created.
 
+### Deliverables
+
+```text
+docs/
+├── DATA_SPECIFICATION.md
+├── SYSTEM_DESIGN.md
+└── DATABASE_DESIGN.md
+```
+
 ### Completion
 
 The major system components, data structures, relationships, and user interactions are understood before implementation begins.
@@ -163,6 +172,8 @@ Create the main application pages and navigation.
 * Build the home page.
 * Build the dataset upload page.
 * Build the dataset history page.
+* Build the dataset details page.
+* Add confirmed dataset deletion.
 * Add application navigation.
 * Add basic success and error messages.
 
@@ -217,8 +228,10 @@ Introduce the analytics platform.
 ### Tasks
 
 * Install or configure Grafana.
-* Connect Grafana to PostgreSQL.
-* Verify database access.
+* Verify that the `analytics_sales` view returns ready Vendilume data.
+* Create a dedicated read-only PostgreSQL role for Grafana.
+* Connect Grafana to the `analytics_sales` view using the read-only role.
+* Verify that Grafana can read analytics data but cannot modify application data.
 * Create an initial dashboard.
 * Test SQL queries against imported Vendilume data.
 * Create the first working dashboard panel.
@@ -271,9 +284,10 @@ Connect the web application and analytics experience.
 ### Tasks
 
 * Add dashboard access to Vendilume.
-* Investigate appropriate Grafana embedding.
-* Embed the dashboard within Django where practical.
-* Provide a fallback dashboard link if required.
+* Configure the iframe embedding approach selected during system design.
+* Embed the Grafana dashboard within a Django template.
+* Pass the validated dataset and filter variables from Django to Grafana.
+* Display a clear dashboard-unavailable message when Grafana cannot be reached.
 * Ensure the transition from dataset management to analytics is understandable.
 
 ### Completion
@@ -290,12 +304,19 @@ Improve the user's ability to explore and understand sales performance.
 
 ### Tasks
 
-Add relevant dashboard filters such as:
+Add Django-controlled analytics filters such as:
 
-* Dataset
 * Date range
 * Product
 * Category
+
+When supported by the selected dataset, add optional filters such as:
+
+* Region
+* Sales channel
+* Customer
+
+Ensure that every analytics query remains restricted to the dataset selected through the Django application.
 
 Develop rule-based observations such as:
 
@@ -307,7 +328,9 @@ July recorded the strongest sales performance.
 Product A sold the most units.
 ```
 
-Verify that filters update the relevant analytics correctly.
+Pass the same validated filter state to Grafana and the Django smart-insight service.
+
+Verify that filters update the relevant KPIs, visualizations, and smart insights consistently.
 
 ### Completion
 

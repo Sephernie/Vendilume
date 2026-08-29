@@ -138,7 +138,7 @@ The planned application includes the following major features:
 * Automatically generated sales insights
 * User-friendly error handling
 
-The exact behavior and priority of these features are defined in `REQUIREMENTS.md`.
+The exact behavior and priority of these features are defined in [`REQUIREMENTS.md`](REQUIREMENTS.md).
 
 ---
 
@@ -186,6 +186,6 @@ The project prioritizes a focused, reliable, and complete analytics workflow rat
 
 Further project details are separated into dedicated documents:
 
-* `REQUIREMENTS.md` defines **what the system must do**.
-* `TECHNOLOGY_STACK.md` defines **what the system will be built with and why**.
-* `PROJECT_PLAN.md` defines **how the system will be developed**.
+* [`REQUIREMENTS.md`](REQUIREMENTS.md) defines **what the system must do**.
+* [`TECHNOLOGY_STACK.md`](TECHNOLOGY_STACK.md) defines **what the system will be built with and why**.
+* [`PROJECT_PLAN.md`](PROJECT_PLAN.md) defines **how the system will be developed**.
