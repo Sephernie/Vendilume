@@ -4,18 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <meta
+        name="description"
+        content="{% block meta_description %}Sales analytics and business intelligence with Vendilume.{% endblock %}"
+    >
+
     <title>{% block title %}Vendilume{% endblock %}</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+        crossorigin="anonymous"
+    >
+
+    {% block extra_head %}
+    {% endblock %}
 </head>
-<body>
+
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+    <a class="visually-hidden-focusable" href="#main-content">
+        Skip to main content
+    </a>
+
     <header>
-        <nav aria-label="Main navigation">
-            <a href="{% url 'home' %}">Vendilume</a>
+        <nav
+            class="navbar navbar-expand-lg bg-dark"
+            data-bs-theme="dark"
+            aria-label="Main navigation"
+        >
+            <div class="container">
+                <a class="navbar-brand fw-semibold" href="{% url 'home' %}">
+                    Vendilume
+                </a>
+
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbar"
+                    aria-controls="mainNavbar"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home' %}">
+                                Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'datasets:upload' %}">
+                                Upload Dataset
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'datasets:history' %}">
+                                Dataset History
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
     </header>
 
-    <main>
+    <main id="main-content" class="container flex-grow-1 py-5">
+        {% if messages %}
+            <div aria-label="Notifications">
+                {% for message in messages %}
+                    <div
+                        class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show"
+                        role="alert"
+                    >
+                        {{ message }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block page_header %}
+        {% endblock %}
+
         {% block content %}
         {% endblock %}
     </main>
+
+    <footer class="border-top bg-body py-3">
+        <div class="container">
+            <p class="mb-0 text-body-secondary">
+                &copy; {% now "Y" %} Vendilume.
+                Sales analytics made clearer.
+            </p>
+        </div>
+    </footer>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"
+    ></script>
+
+    {% block extra_scripts %}
+    {% endblock %}
 </body>
 </html>

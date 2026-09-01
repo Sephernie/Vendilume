@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Delete {{ dataset.name }} | Vendilume{% endblock %}
+
+{% block meta_description %}
+Confirm deletion of the {{ dataset.name }} sales dataset.
+{% endblock %}
+
+{% block page_header %}
+<div class="mb-4">
+    <a
+        class="link-secondary text-decoration-none"
+        href="{% url 'datasets:detail' dataset.pk %}"
+    >
+        &larr; Back to Dataset Details
+    </a>
+
+    <h1 class="fw-bold mt-3">Delete Dataset</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <section class="card border-danger shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="h4 text-danger">
+                    Are you sure?
+                </h2>
+
+                <p>
+                    You are about to permanently delete:
+                </p>
+
+                <div class="bg-body-tertiary rounded p-3 mb-4">
+                    <div class="fw-semibold">
+                        {{ dataset.name }}
+                    </div>
+
+                    <div class="small text-body-secondary">
+                        {{ dataset.original_filename }}
+                    </div>
+                </div>
+
+                <p class="text-body-secondary">
+                    Its sales orders, sales lines, and processing warnings
+                    will also be deleted. This action cannot be undone.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button
+                            class="btn btn-danger"
+                            type="submit"
+                        >
+                            Delete Dataset
+                        </button>
+
+                        <a
+                            class="btn btn-outline-secondary"
+                            href="{% url 'datasets:detail' dataset.pk %}"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

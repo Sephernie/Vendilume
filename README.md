@@ -171,24 +171,32 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 **Phase 4 — PostgreSQL & Data Models:** Complete
 
-**Current Stage:** Phase 5 — Django User Interface
+**Phase 5 — Django User Interface:** Complete
 
-Vendilume now runs as a Django application backed by PostgreSQL with version-controlled data models, migrations, database constraints, and automated model tests.
+**Current Stage:** Phase 6 — CSV Upload, Validation & Processing
 
-Phase 4 established:
+Vendilume now has a responsive Django interface for accessing and managing its main dataset areas.
 
-* A local PostgreSQL development database
-* A dedicated PostgreSQL application role
-* Psycopg-based communication between Django and PostgreSQL
-* Environment-based database configuration with protected credentials
-* The dedicated `datasets` Django application
-* `Dataset`, `DatasetWarning`, `SalesOrder`, and `SalesLine` models
-* Database indexes, check constraints, unique constraints, and cascade relationships
-* The version-controlled `datasets.0001_initial` migration
-* Direct verification of the physical PostgreSQL schema
-* Automated tests for creation, retrieval, relationships, constraints, valid edge cases, cascade deletion, and transaction rollback
+Phase 5 established:
 
-Phase 5 will build the main Django user interface for dataset upload, history, details, deletion, navigation, and application messages.
+* An expanded reusable base template
+* Bootstrap-based responsive styling
+* A responsive navigation bar and shared footer
+* A refined application home page
+* A CSV upload interface prepared for Phase 6
+* A dataset-history page with an empty state and dataset table
+* Individual dataset-detail pages
+* Status badges and dataset summary information
+* Display of available optional data and processing warnings
+* Confirmed dataset deletion
+* Success-message display
+* Navigation between the main application areas
+* Automated interface and deletion-workflow tests
+* Manual browser verification using temporary dataset data
+
+All 20 automated tests pass successfully.
+
+Phase 6 will make the upload interface functional by implementing CSV reading, validation, processing, and atomic PostgreSQL persistence.
 
 ---
 
@@ -224,11 +232,18 @@ Vendilume/
 │   ├── migrations/
 │   │   ├── __init__.py
 │   │   └── 0001_initial.py
+│   ├── templates/
+│   │   └── datasets/
+│   │       ├── delete_confirm.html
+│   │       ├── detail.html
+│   │       ├── history.html
+│   │       └── upload.html
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
 │   ├── models.py
 │   ├── tests.py
+│   ├── urls.py
 │   └── views.py
 │
 ├── docs/

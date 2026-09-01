@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset History | Vendilume{% endblock %}
+
+{% block meta_description %}
+Review sales datasets previously added to Vendilume.
+{% endblock %}
+
+{% block page_header %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="fw-bold mb-2">Dataset History</h1>
+
+        <p class="lead text-body-secondary mb-0">
+            Review your uploaded sales datasets and their processing status.
+        </p>
+    </div>
+
+    <div>
+        <a
+            class="btn btn-primary"
+            href="{% url 'datasets:upload' %}"
+        >
+            Upload Dataset
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section aria-labelledby="dataset-list-heading">
+    <h2 id="dataset-list-heading" class="visually-hidden">
+        Uploaded datasets
+    </h2>
+
+    {% if datasets %}
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Dataset</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Currency</th>
+                            <th scope="col">Rows</th>
+                            <th scope="col">Orders</th>
+                            <th scope="col">Uploaded</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for dataset in datasets %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">
+                                        <a
+                                            href="{% url 'datasets:detail' dataset.pk %}"
+                                            class="text-decoration-none"
+                                        >
+                                            {{ dataset.name }}
+                                        </a>
+                                    </div>
+
+                                    <div class="small text-body-secondary">
+                                        {{ dataset.original_filename }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if dataset.status == "READY" %}
+                                        <span class="badge text-bg-success">
+                                            {{ dataset.get_status_display }}
+                                        </span>
+                                    {% elif dataset.status == "FAILED" %}
+                                        <span class="badge text-bg-danger">
+                                            {{ dataset.get_status_display }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge text-bg-warning">
+                                            {{ dataset.get_status_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ dataset.currency }}</td>
+
+                                <td>{{ dataset.row_count }}</td>
+
+                                <td>{{ dataset.order_count }}</td>
+
+                                <td>
+                                    {{ dataset.uploaded_at|date:"Y-m-d H:i" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5 text-center">
+                <h2 class="h4">No datasets yet</h2>
+
+                <p class="text-body-secondary">
+                    Your uploaded sales datasets will appear here.
+                </p>
+
+                <a
+                    class="btn btn-primary"
+                    href="{% url 'datasets:upload' %}"
+                >
+                    Upload Your First Dataset
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from django.test import TestCase
+from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -292,4 +293,124 @@ class DatabaseConstraintTests(TestCase):
             SalesOrder.objects.filter(
                 source_order_id="ATOMIC-ORDER",
             ).exists()
+        )
+
+class DatasetViewTests(TestCase):
+    def setUp(self):
+        self.dataset = Dataset.objects.create(
+            name="Interface Test Dataset",
+            original_filename="interface_test.csv",
+            currency="EUR",
+            status=Dataset.Status.READY,
+            row_count=25,
+            order_count=10,
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 1, 31),
+            has_product_id=True,
+            has_customer_id=True,
+            has_region=True,
+            has_sales_channel=True,
+            has_discount=True,
+            has_unit_cost=True,
+            has_complete_unit_cost=True,
+        )
+
+    def test_upload_page_loads_successfully(self):
+        response = self.client.get(
+            reverse("datasets:upload"),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "datasets/upload.html",
+        )
+
+    def test_history_page_displays_dataset(self):
+        response = self.client.get(
+            reverse("datasets:history"),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "datasets/history.html",
+        )
+        self.assertContains(
+            response,
+            self.dataset.name,
+        )
+
+    def test_detail_page_displays_dataset(self):
+        response = self.client.get(
+            reverse(
+                "datasets:detail",
+                args=[self.dataset.pk],
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "datasets/detail.html",
+        )
+        self.assertContains(
+            response,
+            self.dataset.name,
+        )
+        self.assertContains(
+            response,
+            self.dataset.original_filename,
+        )
+
+    def test_missing_dataset_detail_returns_404(self):
+        response = self.client.get(
+            reverse(
+                "datasets:detail",
+                args=[999999],
+            ),
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_confirmation_does_not_delete_dataset(self):
+        response = self.client.get(
+            reverse(
+                "datasets:delete",
+                args=[self.dataset.pk],
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "datasets/delete_confirm.html",
+        )
+        self.assertTrue(
+            Dataset.objects.filter(
+                pk=self.dataset.pk,
+            ).exists()
+        )
+
+    def test_post_request_deletes_dataset(self):
+        response = self.client.post(
+            reverse(
+                "datasets:delete",
+                args=[self.dataset.pk],
+            ),
+            follow=True,
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("datasets:history"),
+        )
+        self.assertFalse(
+            Dataset.objects.filter(
+                pk=self.dataset.pk,
+            ).exists()
+        )
+        self.assertContains(
+            response,
+            "&quot;Interface Test Dataset&quot; was deleted successfully.",
         )

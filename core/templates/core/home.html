@@ -2,7 +2,114 @@
 
 {% block title %}Home | Vendilume{% endblock %}
 
+{% block meta_description %}
+Upload sales data, manage datasets, and explore business insights with Vendilume.
+{% endblock %}
+
+{% block page_header %}
+<section class="row align-items-center g-5 py-4 py-lg-5">
+    <div class="col-lg-7">
+        <span class="badge text-bg-info mb-3">
+            Sales Analytics Platform
+        </span>
+
+        <h1 class="display-4 fw-bold">
+            Welcome to Vendilume
+        </h1>
+
+        <p class="lead text-body-secondary mt-3">
+            Turn your sales data into clear, useful business intelligence.
+        </p>
+
+        <p class="text-body-secondary">
+            Upload sales datasets, keep track of previous uploads, and explore
+            analytics designed to support better business decisions.
+        </p>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 card-title">
+                    How Vendilume works
+                </h2>
+
+                <ol class="mb-0 mt-3">
+                    <li class="mb-2">
+                        Upload a sales CSV file.
+                    </li>
+
+                    <li class="mb-2">
+                        Vendilume validates and processes the data.
+                    </li>
+
+                    <li>
+                        Explore the resulting analytics and insights.
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
 {% block content %}
-    <h1>Welcome to Vendilume</h1>
-    <p>Sales analytics and business intelligence made clearer.</p>
+<section class="pb-5" aria-labelledby="features-heading">
+    <div class="text-center mb-4">
+        <h2 id="features-heading" class="fw-bold">
+            A clearer view of your sales
+        </h2>
+
+        <p class="text-body-secondary">
+            Vendilume brings the core sales-analysis workflow into one place.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="h5 card-title">
+                        Upload Sales Data
+                    </h3>
+
+                    <p class="card-text text-body-secondary">
+                        Provide structured sales data through a simple CSV
+                        upload workflow.
+                    </p>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-md-4">
+            <article class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="h5 card-title">
+                        Manage Datasets
+                    </h3>
+
+                    <p class="card-text text-body-secondary">
+                        Review uploaded datasets and inspect their important
+                        details from one location.
+                    </p>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-md-4">
+            <article class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="h5 card-title">
+                        Explore Insights
+                    </h3>
+
+                    <p class="card-text text-body-secondary">
+                        Use dashboards and smart insights to understand sales
+                        performance more clearly.
+                    </p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
 {% endblock %}

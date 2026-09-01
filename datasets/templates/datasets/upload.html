@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Dataset | Vendilume{% endblock %}
+
+{% block meta_description %}
+Upload a sales CSV dataset to Vendilume.
+{% endblock %}
+
+{% block page_header %}
+<div class="mb-4">
+    <h1 class="fw-bold">Upload Sales Dataset</h1>
+
+    <p class="lead text-body-secondary">
+        Select a CSV file containing your sales records.
+    </p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <section class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-3">Choose a CSV file</h2>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">
+                            Sales CSV file
+                        </label>
+
+                        <input
+                            class="form-control"
+                            type="file"
+                            id="csv_file"
+                            name="csv_file"
+                            accept=".csv,text/csv"
+                            aria-describedby="csv-file-help"
+                        >
+
+                        <div id="csv-file-help" class="form-text">
+                            Only CSV files following Vendilume’s supported
+                            sales-data structure will be accepted.
+                        </div>
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        type="submit"
+                        disabled
+                    >
+                        Upload Dataset
+                    </button>
+
+                    <p class="small text-body-secondary mt-3 mb-0">
+                        CSV processing will be enabled during the next
+                        development phase.
+                    </p>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-4">
+        <aside class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h5">Before uploading</h2>
+
+                <ul class="mb-0">
+                    <li class="mb-2">
+                        Use the CSV file format.
+                    </li>
+
+                    <li class="mb-2">
+                        Include all required sales columns.
+                    </li>
+
+                    <li>
+                        Keep column names consistent with the data specification.
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

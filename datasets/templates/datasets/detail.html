@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}{{ dataset.name }} | Vendilume{% endblock %}
+
+{% block meta_description %}
+View details for the {{ dataset.name }} sales dataset.
+{% endblock %}
+
+{% block page_header %}
+<div class="mb-4">
+    <a
+        class="link-secondary text-decoration-none"
+        href="{% url 'datasets:history' %}"
+    >
+        &larr; Back to Dataset History
+    </a>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-3">
+        <div>
+            <h1 class="fw-bold mb-1">
+                {{ dataset.name }}
+            </h1>
+
+            <p class="text-body-secondary mb-0">
+                {{ dataset.original_filename }}
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            {% if dataset.status == "READY" %}
+                <span class="badge text-bg-success fs-6">
+                    {{ dataset.get_status_display }}
+                </span>
+            {% elif dataset.status == "FAILED" %}
+                <span class="badge text-bg-danger fs-6">
+                    {{ dataset.get_status_display }}
+                </span>
+            {% else %}
+                <span class="badge text-bg-warning fs-6">
+                    {{ dataset.get_status_display }}
+                </span>
+            {% endif %}
+            <a
+                class="btn btn-outline-danger"
+                href="{% url 'datasets:delete' dataset.pk %}"
+            >
+                Delete
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <section class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h6 text-body-secondary">
+                    Sales Rows
+                </h2>
+
+                <p class="display-6 fw-semibold mb-0">
+                    {{ dataset.row_count }}
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-md-4">
+        <section class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h6 text-body-secondary">
+                    Orders
+                </h2>
+
+                <p class="display-6 fw-semibold mb-0">
+                    {{ dataset.order_count }}
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-md-4">
+        <section class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h6 text-body-secondary">
+                    Currency
+                </h2>
+
+                <p class="display-6 fw-semibold mb-0">
+                    {{ dataset.currency }}
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-7">
+        <section class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-4">Dataset Information</h2>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Original filename</dt>
+
+                    <dd class="col-sm-7">
+                        {{ dataset.original_filename }}
+                    </dd>
+
+                    <dt class="col-sm-5">Uploaded</dt>
+
+                    <dd class="col-sm-7">
+                        {{ dataset.uploaded_at|date:"Y-m-d H:i" }}
+                    </dd>
+
+                    <dt class="col-sm-5">Start date</dt>
+
+                    <dd class="col-sm-7">
+                        {{ dataset.start_date|date:"Y-m-d"|default:"Not available" }}
+                    </dd>
+
+                    <dt class="col-sm-5">End date</dt>
+
+                    <dd class="col-sm-7">
+                        {{ dataset.end_date|date:"Y-m-d"|default:"Not available" }}
+                    </dd>
+                </dl>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-5">
+        <section class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-4">Available Data</h2>
+
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 d-flex justify-content-between">
+                        Product IDs
+                        <span>
+                            {% if dataset.has_product_id %}Yes{% else %}No{% endif %}
+                        </span>
+                    </li>
+
+                    <li class="list-group-item px-0 d-flex justify-content-between">
+                        Customer IDs
+                        <span>
+                            {% if dataset.has_customer_id %}Yes{% else %}No{% endif %}
+                        </span>
+                    </li>
+
+                    <li class="list-group-item px-0 d-flex justify-content-between">
+                        Regions
+                        <span>
+                            {% if dataset.has_region %}Yes{% else %}No{% endif %}
+                        </span>
+                    </li>
+
+                    <li class="list-group-item px-0 d-flex justify-content-between">
+                        Sales channels
+                        <span>
+                            {% if dataset.has_sales_channel %}Yes{% else %}No{% endif %}
+                        </span>
+                    </li>
+
+                    <li class="list-group-item px-0 d-flex justify-content-between">
+                        Discounts
+                        <span>
+                            {% if dataset.has_discount %}Yes{% else %}No{% endif %}
+                        </span>
+                    </li>
+
+                    <li class="list-group-item px-0 d-flex justify-content-between">
+                        Unit costs
+                        <span>
+                            {% if dataset.has_unit_cost %}Yes{% else %}No{% endif %}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12">
+        <section class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-4">Processing Warnings</h2>
+
+                {% if dataset.warnings.all %}
+                    <div class="list-group">
+                        {% for warning in dataset.warnings.all %}
+                            <div class="list-group-item">
+                                <div class="fw-semibold">
+                                    {{ warning.get_code_display }}
+                                </div>
+
+                                <p class="mb-0 mt-1">
+                                    {{ warning.message }}
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-body-secondary mb-0">
+                        No processing warnings were recorded for this dataset.
+                    </p>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
