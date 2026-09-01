@@ -157,20 +157,43 @@ Phase 3 is complete. Vendilume successfully runs as a Django application, displa
 
 ### Goal
 
-Introduce persistent data storage.
+Establish PostgreSQL as Vendilume's persistent database and implement the data model designed during Phase 2.
 
 ### Tasks
 
-* Set up PostgreSQL.
-* Connect Django to PostgreSQL.
-* Implement the initial Django models.
-* Create and apply migrations.
-* Verify database operations.
-* Establish relationships between datasets and sales records.
+* Set up PostgreSQL for local development.
+* Create the Vendilume database and dedicated application role.
+* Install and record Django's supported PostgreSQL driver.
+* Add protected database environment variables.
+* Replace the temporary SQLite configuration with PostgreSQL.
+* Verify Django's connection to PostgreSQL.
+* Create the dedicated `datasets` application.
+* Implement the `Dataset`, `DatasetWarning`, `SalesOrder`, and `SalesLine` models.
+* Add the designed fields, relationships, indexes, check constraints, and unique constraints.
+* Create, review, and apply the initial version-controlled migration.
+* Inspect the resulting physical PostgreSQL schema.
+* Test record creation, retrieval, and relationships.
+* Test database constraints and valid edge cases.
+* Test cascade deletion and atomic transaction rollback.
+
+### Deliverables
+
+```text
+datasets/
+├── migrations/
+│   └── 0001_initial.py
+├── models.py
+└── tests.py
+
+Updated:
+├── .env.example
+├── config/settings.py
+└── requirements.txt
+```
 
 ### Completion
 
-Django can successfully create, retrieve, and manage Vendilume data using PostgreSQL.
+Phase 4 is complete. Django uses PostgreSQL as its persistent database, all four Vendilume tables exist through a version-controlled migration, the physical schema matches the approved database design, and automated tests verify creation, retrieval, relationships, constraints, cascade deletion, valid edge cases, and transaction rollback.
 
 ---
 

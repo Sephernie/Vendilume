@@ -163,29 +163,32 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 ## Project Status
 
-## Project Status
-
 **Phase 1 — Project Foundation:** Complete
 
 **Phase 2 — Requirements & Software Design:** Complete
 
 **Phase 3 — Django Foundation:** Complete
 
-**Current Stage:** Phase 4 — PostgreSQL & Data Models
+**Phase 4 — PostgreSQL & Data Models:** Complete
 
-Vendilume now runs as a functioning Django application and displays its first page in the browser.
+**Current Stage:** Phase 5 — Django User Interface
 
-Phase 3 established:
+Vendilume now runs as a Django application backed by PostgreSQL with version-controlled data models, migrations, database constraints, and automated model tests.
 
-* An isolated Python development environment
-* Recorded Python dependencies
-* The Django project and initial `core` application
-* Environment-based settings and protected secrets
-* Initial URL routing and home view
-* A reusable base template and basic navigation
-* An automated home-page test
+Phase 4 established:
 
-Phase 4 will introduce PostgreSQL, connect it to Django, and implement the database models defined during Phase 2.
+* A local PostgreSQL development database
+* A dedicated PostgreSQL application role
+* Psycopg-based communication between Django and PostgreSQL
+* Environment-based database configuration with protected credentials
+* The dedicated `datasets` Django application
+* `Dataset`, `DatasetWarning`, `SalesOrder`, and `SalesLine` models
+* Database indexes, check constraints, unique constraints, and cascade relationships
+* The version-controlled `datasets.0001_initial` migration
+* Direct verification of the physical PostgreSQL schema
+* Automated tests for creation, retrieval, relationships, constraints, valid edge cases, cascade deletion, and transaction rollback
+
+Phase 5 will build the main Django user interface for dataset upload, history, details, deletion, navigation, and application messages.
 
 ---
 
@@ -215,6 +218,17 @@ Vendilume/
 │   ├── models.py
 │   ├── tests.py
 │   ├── urls.py
+│   └── views.py
+│
+├── datasets/
+│   ├── migrations/
+│   │   ├── __init__.py
+│   │   └── 0001_initial.py
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
 │   └── views.py
 │
 ├── docs/
