@@ -261,19 +261,18 @@ Build the data-ingestion pipeline.
 
 ### Completion
 
-A valid sales CSV can travel successfully through:
+Phase 6 is complete. Vendilume now provides a functioning, all-or-nothing data-ingestion pipeline:
 
 ```text
-Upload
-  ↓
-Validation
-  ↓
-Processing
-  ↓
-PostgreSQL
-```
-
-At this point, Vendilume has a functioning data pipeline.
+CSV Upload
+    ↓
+Complete Validation
+    ↓
+Cleaning and Financial Calculations
+    ↓
+Atomic PostgreSQL Persistence
+    ↓
+Dataset Details
 
 ---
 

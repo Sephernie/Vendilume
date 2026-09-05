@@ -173,30 +173,30 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 **Phase 5 — Django User Interface:** Complete
 
-**Current Stage:** Phase 6 — CSV Upload, Validation & Processing
+**Phase 6 — CSV Upload, Validation & Processing:** Complete
 
-Vendilume now has a responsive Django interface for accessing and managing its main dataset areas.
+**Current Stage:** Phase 7 — Grafana Foundation
 
-Phase 5 established:
+Phase 6 established:
 
-* An expanded reusable base template
-* Bootstrap-based responsive styling
-* A responsive navigation bar and shared footer
-* A refined application home page
-* A CSV upload interface prepared for Phase 6
-* A dataset-history page with an empty state and dataset table
-* Individual dataset-detail pages
-* Status badges and dataset summary information
-* Display of available optional data and processing warnings
-* Confirmed dataset deletion
-* Success-message display
-* Navigation between the main application areas
-* Automated interface and deletion-workflow tests
-* Manual browser verification using temporary dataset data
+* Functional CSV submission through the Django upload interface
+* Safe temporary handling without permanently retaining uploaded files
+* UTF-8, comma-separated, header, row-limit, and required-column validation
+* Text, date, required-number, and optional-number validation
+* Cross-row order and product consistency checks
+* Exact-duplicate detection without deleting legitimate sales lines
+* Structured warnings for unsupported columns, duplicates, and incomplete optional data
+* Decimal-safe revenue, discount, cost, and profit calculations
+* Atomic PostgreSQL persistence
+* Consolidated sales orders and traceable sales lines
+* Dataset summary metadata and optional-column capability flags
+* Clear validation errors and successful-upload messages
+* Automated processor, importer, database, form, and workflow testing
+* Successful manual browser verification of the complete ingestion workflow
 
-All 20 automated tests pass successfully.
+All 80 automated tests pass successfully.
 
-Phase 6 will make the upload interface functional by implementing CSV reading, validation, processing, and atomic PostgreSQL persistence.
+Vendilume can now accept a valid sales CSV, validate and process its complete contents, store the result atomically in PostgreSQL, retain warnings, and redirect the user to the resulting dataset details.
 
 ---
 
@@ -232,6 +232,10 @@ Vendilume/
 │   ├── migrations/
 │   │   ├── __init__.py
 │   │   └── 0001_initial.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── csv_processor.py
+│   │   └── dataset_importer.py
 │   ├── templates/
 │   │   └── datasets/
 │   │       ├── delete_confirm.html

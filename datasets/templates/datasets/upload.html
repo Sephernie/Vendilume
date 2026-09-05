@@ -26,38 +26,48 @@ Upload a sales CSV dataset to Vendilume.
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 
-                    <div class="mb-3">
-                        <label for="csv_file" class="form-label">
-                            Sales CSV file
-                        </label>
-
-                        <input
-                            class="form-control"
-                            type="file"
-                            id="csv_file"
-                            name="csv_file"
-                            accept=".csv,text/csv"
-                            aria-describedby="csv-file-help"
-                        >
-
-                        <div id="csv-file-help" class="form-text">
-                            Only CSV files following Vendilume’s supported
-                            sales-data structure will be accepted.
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
                         </div>
-                    </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label
+                                for="{{ field.id_for_label }}"
+                                class="form-label"
+                            >
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <div
+                                    id="{{ field.auto_id }}_helptext"
+                                    class="form-text"
+                                >
+                                    {{ field.help_text }}
+                                </div>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
 
                     <button
                         class="btn btn-primary"
                         type="submit"
-                        disabled
                     >
                         Upload Dataset
                     </button>
-
-                    <p class="small text-body-secondary mt-3 mb-0">
-                        CSV processing will be enabled during the next
-                        development phase.
-                    </p>
                 </form>
             </div>
         </section>
