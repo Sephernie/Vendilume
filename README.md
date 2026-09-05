@@ -177,24 +177,24 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 **Phase 7 — Grafana Foundation:** Complete
 
-**Current Stage:** Phase 8 — Sales Analytics Dashboard
+**Phase 8 — Sales Analytics Dashboard:** Complete
 
-Phase 7 established:
+**Current Stage:** Phase 9 — Django ↔ Grafana Integration
 
-* A version-controlled PostgreSQL `analytics_sales` view
-* A flat, analysis-ready structure containing 23 sales fields
-* Automatic exclusion of datasets that are not ready
-* Automated tests for included and excluded analytics data
-* A dedicated `grafana_reader` PostgreSQL role with read-only access to the analytics view
-* Verified denial of schema creation, data modification, and base-table access
-* A working Grafana OSS installation and PostgreSQL data source
-* Successful queries against imported Vendilume sales data
-* An initial `Vendilume Sales Overview` dashboard
-* A working `Total Net Revenue` panel displaying the Phase 7 sample dataset
+Phase 8 established:
+
+* A dataset-scoped `Vendilume Sales Overview` dashboard
+* A single-selection dataset variable for switching between imported datasets
+* Currency-aware monetary panel titles and number formatting
+* KPI panels for total net revenue, total orders, total items sold, and average order value
+* A revenue-over-time time-series visualization
+* Top-products and category-revenue bar charts
+* Independent validation of the Phase 7 sample dataset's KPI results
+* A portable, version-controlled Grafana dashboard export
 
 All 82 automated tests pass successfully.
 
-Vendilume can now expose ready sales data through a tested analytics view and display it in Grafana through a restricted read-only database account. The project is ready to expand the initial dashboard into its complete set of sales KPIs and visualizations.
+Vendilume can now turn each ready sales dataset into a clear set of KPIs and visualizations without mixing data between uploads. The project is ready to embed the dashboard in Django and connect application navigation to the corresponding dataset analytics.
 
 ---
 
@@ -257,6 +257,10 @@ Vendilume/
 │   ├── DATA_SPECIFICATION.md
 │   ├── SYSTEM_DESIGN.md
 │   └── DATABASE_DESIGN.md
+│
+├── grafana/
+│   └── dashboards/
+│       └── vendilume-sales-overview.json
 │
 ├── templates/
 │   └── base.html

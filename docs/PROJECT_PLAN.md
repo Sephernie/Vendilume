@@ -308,28 +308,27 @@ Build the main business intelligence dashboard.
 
 ### Tasks
 
-Create the core KPI panels and useful visualizations.
+* Create a single-selection dataset variable.
+* Restrict every dashboard query to the selected dataset.
+* Derive and display the selected dataset's currency.
+* Create KPI panels for total net revenue, total orders, total items sold, and average order value.
+* Create a revenue-over-time time-series visualization.
+* Create bar charts for top products by net revenue and revenue by category.
+* Arrange the panels into a clear and balanced dashboard layout.
+* Validate the KPI calculations independently against a known sample dataset.
+* Export the dashboard as portable, version-controlled Grafana JSON.
 
-Potential KPIs include:
+### Deliverables
 
-* Total Revenue
-* Total Orders
-* Total Items Sold
-* Average Order Value
-* Best-Selling Product
-* Top-Performing Category
-
-Potential visualizations include:
-
-* Revenue Over Time
-* Sales by Category
-* Top Products
-
-Dashboard design should prioritize clarity and usefulness rather than the number of panels.
+```text
+grafana/
+└── dashboards/
+    └── vendilume-sales-overview.json
+```
 
 ### Completion
 
-Imported sales data can be understood through a functional Grafana dashboard.
+Phase 8 is complete. The `Vendilume Sales Overview` dashboard allows one ready dataset to be selected at a time and presents total net revenue, total orders, total items sold, average order value, revenue over time, top products by net revenue, and revenue by category. Monetary panels identify the selected dataset's currency, all queries remain dataset-scoped, the known Phase 7 sample results were independently validated, and the portable dashboard definition is stored in version control.
 
 ---
 
