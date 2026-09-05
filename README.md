@@ -175,28 +175,26 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 **Phase 6 — CSV Upload, Validation & Processing:** Complete
 
-**Current Stage:** Phase 7 — Grafana Foundation
+**Phase 7 — Grafana Foundation:** Complete
 
-Phase 6 established:
+**Current Stage:** Phase 8 — Sales Analytics Dashboard
 
-* Functional CSV submission through the Django upload interface
-* Safe temporary handling without permanently retaining uploaded files
-* UTF-8, comma-separated, header, row-limit, and required-column validation
-* Text, date, required-number, and optional-number validation
-* Cross-row order and product consistency checks
-* Exact-duplicate detection without deleting legitimate sales lines
-* Structured warnings for unsupported columns, duplicates, and incomplete optional data
-* Decimal-safe revenue, discount, cost, and profit calculations
-* Atomic PostgreSQL persistence
-* Consolidated sales orders and traceable sales lines
-* Dataset summary metadata and optional-column capability flags
-* Clear validation errors and successful-upload messages
-* Automated processor, importer, database, form, and workflow testing
-* Successful manual browser verification of the complete ingestion workflow
+Phase 7 established:
 
-All 80 automated tests pass successfully.
+* A version-controlled PostgreSQL `analytics_sales` view
+* A flat, analysis-ready structure containing 23 sales fields
+* Automatic exclusion of datasets that are not ready
+* Automated tests for included and excluded analytics data
+* A dedicated `grafana_reader` PostgreSQL role with read-only access to the analytics view
+* Verified denial of schema creation, data modification, and base-table access
+* A working Grafana OSS installation and PostgreSQL data source
+* Successful queries against imported Vendilume sales data
+* An initial `Vendilume Sales Overview` dashboard
+* A working `Total Net Revenue` panel displaying the Phase 7 sample dataset
 
-Vendilume can now accept a valid sales CSV, validate and process its complete contents, store the result atomically in PostgreSQL, retain warnings, and redirect the user to the resulting dataset details.
+All 82 automated tests pass successfully.
+
+Vendilume can now expose ready sales data through a tested analytics view and display it in Grafana through a restricted read-only database account. The project is ready to expand the initial dashboard into its complete set of sales KPIs and visualizations.
 
 ---
 
@@ -231,7 +229,8 @@ Vendilume/
 ├── datasets/
 │   ├── migrations/
 │   │   ├── __init__.py
-│   │   └── 0001_initial.py
+│   │   ├── 0001_initial.py
+│   │   └── 0002_create_analytics_sales_view.py
 │   ├── services/
 │   │   ├── __init__.py
 │   │   ├── csv_processor.py

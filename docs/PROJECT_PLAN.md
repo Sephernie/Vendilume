@@ -296,7 +296,7 @@ Introduce the analytics platform.
 
 ### Completion
 
-Grafana can successfully retrieve and display Vendilume sales data from PostgreSQL.
+Phase 7 is complete. The `analytics_sales` PostgreSQL view is created through a reversible Django migration and exposes only ready Vendilume sales data. Automated tests verify both inclusion and exclusion behavior. Grafana connects through a dedicated read-only database role that can query the analytics view but cannot modify data, create schema objects, or read the underlying application tables. The initial `Vendilume Sales Overview` dashboard successfully displays total net revenue from imported sales data.
 
 ---
 

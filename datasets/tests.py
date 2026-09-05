@@ -8,7 +8,7 @@ from unittest.mock import patch
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import connection, IntegrityError, transaction
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -1943,3 +1943,124 @@ class DatasetViewTests(TestCase):
         self.assertContains(response, 'name="name"')
         self.assertContains(response, 'name="currency"')
         self.assertContains(response, 'name="csv_file"')
+
+
+class AnalyticsSalesViewTests(TestCase):
+    def create_dataset_with_sale(self, name, status):
+        dataset = Dataset.objects.create(
+            name=name,
+            original_filename=f"{name.lower()}.csv",
+            currency="EUR",
+            status=status,
+            row_count=1,
+            order_count=1,
+            start_date=date(2026, 1, 10),
+            end_date=date(2026, 1, 10),
+        )
+
+        order = SalesOrder.objects.create(
+            dataset=dataset,
+            source_order_id="ORDER-001",
+            order_date=date(2026, 1, 10),
+            customer_id="CUSTOMER-001",
+            region="Berlin",
+            sales_channel="Online",
+        )
+
+        SalesLine.objects.create(
+            order=order,
+            source_row_number=2,
+            source_product_id="PRODUCT-001",
+            product_name="Desk Lamp",
+            category="Home",
+            quantity=2,
+            unit_price=Decimal("10.00"),
+            discount_percent=Decimal("10.00"),
+            unit_cost=Decimal("6.00"),
+            gross_revenue=Decimal("20.00"),
+            discount_amount=Decimal("2.00"),
+            net_revenue=Decimal("18.00"),
+            total_cost=Decimal("12.00"),
+            profit=Decimal("6.00"),
+        )
+
+        return dataset
+
+    def setUp(self):
+        self.ready_dataset = self.create_dataset_with_sale(
+            name="Ready Dataset",
+            status=Dataset.Status.READY,
+        )
+
+        self.processing_dataset = self.create_dataset_with_sale(
+            name="Processing Dataset",
+            status=Dataset.Status.PROCESSING,
+        )
+
+    def test_view_returns_ready_sales_data(self):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM analytics_sales
+                WHERE dataset_id = %s
+                """,
+                [self.ready_dataset.id],
+            )
+
+            columns = [
+                column[0]
+                for column in cursor.description
+            ]
+            row = cursor.fetchone()
+
+        self.assertIsNotNone(row)
+
+        result = dict(zip(columns, row))
+
+        self.assertEqual(
+            result["dataset_name"],
+            "Ready Dataset",
+        )
+        self.assertEqual(result["currency"], "EUR")
+        self.assertEqual(
+            result["source_order_id"],
+            "ORDER-001",
+        )
+        self.assertEqual(
+            result["product_name"],
+            "Desk Lamp",
+        )
+        self.assertEqual(result["quantity"], 2)
+        self.assertEqual(
+            result["net_revenue"],
+            Decimal("18.00"),
+        )
+        self.assertEqual(
+            result["profit"],
+            Decimal("6.00"),
+        )
+
+    def test_view_excludes_non_ready_datasets(self):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT dataset_id
+                FROM analytics_sales
+                ORDER BY dataset_id
+                """
+            )
+
+            dataset_ids = [
+                row[0]
+                for row in cursor.fetchall()
+            ]
+
+        self.assertEqual(
+            dataset_ids,
+            [self.ready_dataset.id],
+        )
+        self.assertNotIn(
+            self.processing_dataset.id,
+            dataset_ids,
+        )
