@@ -273,6 +273,7 @@ Cleaning and Financial Calculations
 Atomic PostgreSQL Persistence
     ↓
 Dataset Details
+```
 
 ---
 
