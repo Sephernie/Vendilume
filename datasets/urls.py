@@ -13,5 +13,10 @@ urlpatterns = [
         views.delete_dataset,
         name="delete",
     ),
+    path(
+        "<int:pk>/analytics/",
+        views.dataset_analytics,
+        name="analytics",
+    ),
     path("<int:pk>/", views.dataset_detail, name="detail"),
 ]

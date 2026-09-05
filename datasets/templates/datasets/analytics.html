@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ dataset.name }} Analytics | Vendilume{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <a href="{% url 'datasets:detail' dataset.pk %}"
+           class="text-decoration-none">
+            &larr; Back to dataset details
+        </a>
+
+        <h1 class="h2 mt-2 mb-1">Sales Analytics</h1>
+        <p class="text-muted mb-0">
+            {{ dataset.name }}
+        </p>
+    </div>
+
+    <span class="badge text-bg-success">
+        {{ dataset.get_status_display }}
+    </span>
+</div>
+
+{% if dataset.status != "READY" %}
+    <div class="alert alert-warning" role="alert">
+        <h2 class="h5 alert-heading">Analytics unavailable</h2>
+        <p class="mb-0">
+            Analytics are only available after this dataset has finished
+            processing successfully.
+        </p>
+    </div>
+{% elif not grafana_available %}
+    <div class="alert alert-danger" role="alert">
+        <h2 class="h5 alert-heading">Grafana is unavailable</h2>
+        <p class="mb-0">
+            Vendilume could not connect to the local Grafana service.
+            Confirm that Grafana is running, then refresh this page.
+        </p>
+    </div>
+{% else %}
+    <iframe
+        src="{{ dashboard_url }}"
+        title="Sales analytics for {{ dataset.name }}"
+        class="w-100 border rounded d-block"
+        style="height: 950px;"
+        loading="lazy"
+        allowfullscreen>
+    </iframe>
+{% endif %}
+{% endblock %}

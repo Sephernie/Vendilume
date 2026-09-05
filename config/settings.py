@@ -134,3 +134,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+GRAFANA_BASE_URL = os.environ["GRAFANA_BASE_URL"].rstrip("/")
+GRAFANA_DASHBOARD_UID = os.environ["GRAFANA_DASHBOARD_UID"]

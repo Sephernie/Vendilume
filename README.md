@@ -179,22 +179,25 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 **Phase 8 — Sales Analytics Dashboard:** Complete
 
-**Current Stage:** Phase 9 — Django ↔ Grafana Integration
+**Phase 9 — Django ↔ Grafana Integration:** Complete
 
-Phase 8 established:
+**Current Stage:** Phase 10 — Filters & Smart Insights
 
-* A dataset-scoped `Vendilume Sales Overview` dashboard
-* A single-selection dataset variable for switching between imported datasets
-* Currency-aware monetary panel titles and number formatting
-* KPI panels for total net revenue, total orders, total items sold, and average order value
-* A revenue-over-time time-series visualization
-* Top-products and category-revenue bar charts
-* Independent validation of the Phase 7 sample dataset's KPI results
-* A portable, version-controlled Grafana dashboard export
+Phase 9 established:
 
-All 82 automated tests pass successfully.
+* Dataset-specific analytics access from the Vendilume interface
+* A Django analytics route, view, and embedded-dashboard template
+* Environment-controlled Grafana base URL and dashboard UID settings
+* Validation that analytics are embedded only for existing, ready datasets
+* Automatic Grafana URL variables for the selected dataset and its full date range
+* A cleaner kiosk-mode dashboard presentation within the Django interface
+* A two-second Grafana health check with a clear unavailable-service message
+* Local-only anonymous Grafana access restricted to the read-only Viewer role
+* Automated coverage for successful embedding, Grafana unavailability, non-ready datasets, unknown datasets, and application navigation
 
-Vendilume can now turn each ready sales dataset into a clear set of KPIs and visualizations without mixing data between uploads. The project is ready to embed the dashboard in Django and connect application navigation to the corresponding dataset analytics.
+All 87 automated tests pass successfully.
+
+Vendilume now connects dataset management directly to the corresponding embedded sales dashboard while preserving dataset boundaries and handling unavailable analytics infrastructure gracefully. The project is ready to add Django-controlled filters and rule-based smart insights.
 
 ---
 
@@ -237,6 +240,7 @@ Vendilume/
 │   │   └── dataset_importer.py
 │   ├── templates/
 │   │   └── datasets/
+│   │       ├── analytics.html
 │   │       ├── delete_confirm.html
 │   │       ├── detail.html
 │   │       ├── history.html

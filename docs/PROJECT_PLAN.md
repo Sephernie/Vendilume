@@ -340,16 +340,39 @@ Connect the web application and analytics experience.
 
 ### Tasks
 
-* Add dashboard access to Vendilume.
-* Configure the iframe embedding approach selected during system design.
-* Embed the Grafana dashboard within a Django template.
-* Pass the validated dataset and filter variables from Django to Grafana.
-* Display a clear dashboard-unavailable message when Grafana cannot be reached.
-* Ensure the transition from dataset management to analytics is understandable.
+* Add dataset-specific dashboard access to the Vendilume interface.
+* Add environment-controlled Grafana base URL and dashboard UID settings.
+* Configure Grafana for local-only iframe embedding and anonymous Viewer access.
+* Create the dataset analytics URL, Django view, and embedded-dashboard template.
+* Verify that the requested dataset exists and is ready before exposing analytics.
+* Pass the validated dataset ID to Grafana through the `var-dataset_id` URL variable.
+* Set Grafana's time range from the selected dataset's stored start and end dates.
+* Use Grafana kiosk mode and a full-height iframe for a cleaner embedded experience.
+* Check Grafana's health endpoint with a short timeout before displaying the iframe.
+* Display clear messages for non-ready datasets and unavailable Grafana service.
+* Connect dataset details to analytics through understandable navigation.
+* Add automated tests for successful embedding and all important unavailable states.
+
+### Deliverables
+
+```text
+datasets/
+├── templates/
+│   └── datasets/
+│       └── analytics.html
+├── tests.py
+├── urls.py
+└── views.py
+
+Updated:
+├── .env.example
+├── config/settings.py
+└── datasets/templates/datasets/detail.html
+```
 
 ### Completion
 
-A user can move naturally from Vendilume's application interface to the corresponding sales analytics.
+Phase 9 is complete. A user can move from a ready dataset's detail page to its corresponding Grafana sales dashboard inside Vendilume. Django validates the dataset, supplies its ID and complete date range to Grafana, and presents the dashboard in a cleaner kiosk-mode iframe. Grafana is restricted to the local computer, embedded anonymous access receives only the Viewer role, and the existing datasource remains read-only. If the dataset is not ready, does not exist, or Grafana cannot be reached, Vendilume provides the appropriate unavailable state. Automated tests cover the integration and navigation behavior.
 
 ---
 

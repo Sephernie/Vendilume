@@ -40,12 +40,31 @@ View details for the {{ dataset.name }} sales dataset.
                     {{ dataset.get_status_display }}
                 </span>
             {% endif %}
-            <a
-                class="btn btn-outline-danger"
-                href="{% url 'datasets:delete' dataset.pk %}"
-            >
-                Delete
-            </a>
+            <div class="d-flex flex-wrap gap-2">
+                {% if dataset.status == "READY" %}
+                    <a
+                        href="{% url 'datasets:analytics' dataset.pk %}"
+                        class="btn btn-primary"
+                    >
+                        View Analytics
+                    </a>
+                {% else %}
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        disabled
+                    >
+                        Analytics Unavailable
+                    </button>
+                {% endif %}
+
+                <a
+                    href="{% url 'datasets:delete' dataset.pk %}"
+                    class="btn btn-outline-danger"
+                >
+                    Delete
+                </a>
+            </div>
         </div>
     </div>
 </div>

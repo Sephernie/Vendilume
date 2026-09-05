@@ -4,8 +4,9 @@ from decimal import Decimal
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+from urllib.error import URLError
 
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.db import connection, IntegrityError, transaction
@@ -1943,6 +1944,108 @@ class DatasetViewTests(TestCase):
         self.assertContains(response, 'name="name"')
         self.assertContains(response, 'name="currency"')
         self.assertContains(response, 'name="csv_file"')
+
+    @override_settings(
+        GRAFANA_BASE_URL="http://grafana.test",
+        GRAFANA_DASHBOARD_UID="test-dashboard-uid",
+    )
+    @patch("datasets.views.urlopen")
+    def test_ready_dataset_analytics_embeds_dashboard(
+        self,
+        mock_urlopen,
+    ):
+        mock_urlopen.return_value.__enter__.return_value.status = 200
+
+        response = self.client.get(
+            reverse("datasets:analytics", args=[self.dataset.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "datasets/analytics.html")
+        self.assertTrue(response.context["grafana_available"])
+
+        dashboard_url = response.context["dashboard_url"]
+
+        self.assertIn(
+            "http://grafana.test/d/test-dashboard-uid/"
+            "vendilume-sales-overview?",
+            dashboard_url,
+        )
+        self.assertIn(
+            f"var-dataset_id={self.dataset.pk}",
+            dashboard_url,
+        )
+        self.assertIn("from=", dashboard_url)
+        self.assertIn("to=", dashboard_url)
+
+        mock_urlopen.assert_called_once_with(
+            "http://grafana.test/api/health",
+            timeout=2,
+        )
+
+
+    @override_settings(
+        GRAFANA_BASE_URL="http://grafana.test",
+        GRAFANA_DASHBOARD_UID="test-dashboard-uid",
+    )
+    @patch("datasets.views.urlopen")
+    def test_analytics_shows_message_when_grafana_is_unavailable(
+        self,
+        mock_urlopen,
+    ):
+        mock_urlopen.side_effect = URLError("Grafana unavailable")
+
+        response = self.client.get(
+            reverse("datasets:analytics", args=[self.dataset.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["grafana_available"])
+        self.assertIsNone(response.context["dashboard_url"])
+        self.assertContains(response, "Grafana is unavailable")
+
+
+    @patch("datasets.views.urlopen")
+    def test_non_ready_dataset_does_not_load_grafana(
+        self,
+        mock_urlopen,
+    ):
+        self.dataset.status = Dataset.Status.PROCESSING
+        self.dataset.save(update_fields=["status"])
+
+        response = self.client.get(
+            reverse("datasets:analytics", args=[self.dataset.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["grafana_available"])
+        self.assertIsNone(response.context["dashboard_url"])
+        self.assertContains(
+            response,
+            "Analytics are only available after this dataset has finished",
+        )
+        mock_urlopen.assert_not_called()
+
+
+    def test_unknown_dataset_analytics_returns_404(self):
+        response = self.client.get(
+            reverse("datasets:analytics", args=[999999])
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+
+    def test_ready_dataset_detail_links_to_analytics(self):
+        response = self.client.get(
+            reverse("datasets:detail", args=[self.dataset.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            reverse("datasets:analytics", args=[self.dataset.pk]),
+        )
+        self.assertContains(response, "View Analytics")
 
 
 class AnalyticsSalesViewTests(TestCase):

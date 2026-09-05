@@ -3,6 +3,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from datetime import datetime, time, timedelta, timezone as datetime_timezone
+from urllib.parse import urlencode
+from urllib.error import URLError
+from urllib.request import urlopen
+
+from django.conf import settings
+
 from .services.csv_processor import (
     CsvValidationError,
     read_and_validate_csv,
@@ -120,4 +127,57 @@ def upload_dataset(request):
         request,
         "datasets/upload.html",
         context,
+    )
+
+
+def dataset_analytics(request, pk):
+    dataset = get_object_or_404(Dataset, pk=pk)
+
+    grafana_available = False
+    dashboard_url = None
+
+    if dataset.status == Dataset.Status.READY:
+        try:
+            health_url = f"{settings.GRAFANA_BASE_URL}/api/health"
+
+            with urlopen(health_url, timeout=2) as response:
+                grafana_available = response.status == 200
+        except (OSError, URLError):
+            grafana_available = False
+
+        if grafana_available:
+            parameters = {
+                "var-dataset_id": dataset.pk,
+                "kiosk": "tv",
+            }
+
+            if dataset.start_date and dataset.end_date:
+                range_start = datetime.combine(
+                    dataset.start_date,
+                    time.min,
+                    tzinfo=datetime_timezone.utc,
+                )
+                range_end = datetime.combine(
+                    dataset.end_date + timedelta(days=1),
+                    time.min,
+                    tzinfo=datetime_timezone.utc,
+                )
+
+                parameters["from"] = int(range_start.timestamp() * 1000)
+                parameters["to"] = int(range_end.timestamp() * 1000) - 1
+
+            dashboard_url = (
+                f"{settings.GRAFANA_BASE_URL}"
+                f"/d/{settings.GRAFANA_DASHBOARD_UID}"
+                f"/vendilume-sales-overview?{urlencode(parameters)}"
+            )
+
+    return render(
+        request,
+        "datasets/analytics.html",
+        {
+            "dataset": dataset,
+            "grafana_available": grafana_available,
+            "dashboard_url": dashboard_url,
+        },
     )
