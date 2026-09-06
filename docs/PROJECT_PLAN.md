@@ -414,7 +414,7 @@ Verify that filters update the relevant KPIs, visualizations, and smart insights
 
 ### Completion
 
-Users can explore subsets of their data and receive useful automatically generated observations.
+Phase 10 is complete. Users can filter a ready dataset by date range, product, and category, with region, sales channel, and customer filters appearing when supported by the uploaded data. Django validates the selected values and sends the same filter state to all seven Grafana panels and the rule-based Smart Insights service. The generated observations identify leading products, categories, unit sales, and monthly revenue while remaining available if Grafana is offline. Automated tests cover dataset-scoped choices, invalid values, conditional filters, insight calculations, empty results, and Django-to-Grafana parameter integration.
 
 ---
 

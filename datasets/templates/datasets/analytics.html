@@ -29,22 +29,190 @@
             processing successfully.
         </p>
     </div>
-{% elif not grafana_available %}
-    <div class="alert alert-danger" role="alert">
-        <h2 class="h5 alert-heading">Grafana is unavailable</h2>
-        <p class="mb-0">
-            Vendilume could not connect to the local Grafana service.
-            Confirm that Grafana is running, then refresh this page.
-        </p>
-    </div>
 {% else %}
-    <iframe
-        src="{{ dashboard_url }}"
-        title="Sales analytics for {{ dataset.name }}"
-        class="w-100 border rounded d-block"
-        style="height: 950px;"
-        loading="lazy"
-        allowfullscreen>
-    </iframe>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 card-title mb-3">Filter analytics</h2>
+
+            <form method="get">
+                {% if filter_form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ filter_form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label
+                            for="{{ filter_form.start_date.id_for_label }}"
+                            class="form-label">
+                            {{ filter_form.start_date.label }}
+                        </label>
+
+                        {{ filter_form.start_date }}
+
+                        {% for error in filter_form.start_date.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-3">
+                        <label
+                            for="{{ filter_form.end_date.id_for_label }}"
+                            class="form-label">
+                            {{ filter_form.end_date.label }}
+                        </label>
+
+                        {{ filter_form.end_date }}
+
+                        {% for error in filter_form.end_date.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-3">
+                        <label
+                            for="{{ filter_form.product.id_for_label }}"
+                            class="form-label">
+                            {{ filter_form.product.label }}
+                        </label>
+
+                        {{ filter_form.product }}
+
+                        {% for error in filter_form.product.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-3">
+                        <label
+                            for="{{ filter_form.category.id_for_label }}"
+                            class="form-label">
+                            {{ filter_form.category.label }}
+                        </label>
+
+                        {{ filter_form.category }}
+
+                        {% for error in filter_form.category.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if filter_form.region %}
+                        <div class="col-md-4">
+                            <label
+                                for="{{ filter_form.region.id_for_label }}"
+                                class="form-label">
+                                {{ filter_form.region.label }}
+                            </label>
+
+                            {{ filter_form.region }}
+
+                            {% for error in filter_form.region.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if filter_form.sales_channel %}
+                        <div class="col-md-4">
+                            <label
+                                for="{{ filter_form.sales_channel.id_for_label }}"
+                                class="form-label">
+                                {{ filter_form.sales_channel.label }}
+                            </label>
+
+                            {{ filter_form.sales_channel }}
+
+                            {% for error in filter_form.sales_channel.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if filter_form.customer %}
+                        <div class="col-md-4">
+                            <label
+                                for="{{ filter_form.customer.id_for_label }}"
+                                class="form-label">
+                                {{ filter_form.customer.label }}
+                            </label>
+
+                            {{ filter_form.customer }}
+
+                            {% for error in filter_form.customer.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        Apply filters
+                    </button>
+
+                    <a
+                        href="{% url 'datasets:analytics' dataset.pk %}"
+                        class="btn btn-outline-secondary">
+                        Reset filters
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 card-title mb-3">
+                Smart insights
+            </h2>
+
+            {% if insights %}
+                <ul class="list-group list-group-flush">
+                    {% for insight in insights %}
+                        <li class="list-group-item px-0">
+                            {{ insight }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted mb-0">
+                    No insights are currently available.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    {% if not grafana_available %}
+        <div class="alert alert-danger" role="alert">
+            <h2 class="h5 alert-heading">Grafana is unavailable</h2>
+            <p class="mb-0">
+                Vendilume could not connect to the local Grafana service.
+                Confirm that Grafana is running, then refresh this page.
+            </p>
+        </div>
+    {% else %}
+        <iframe
+            src="{{ dashboard_url }}"
+            title="Sales analytics for {{ dataset.name }}"
+            class="w-100 border rounded d-block"
+            style="height: 950px;"
+            loading="lazy"
+            allowfullscreen>
+        </iframe>
+    {% endif %}
 {% endif %}
 {% endblock %}

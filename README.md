@@ -181,23 +181,26 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 **Phase 9 — Django ↔ Grafana Integration:** Complete
 
-**Current Stage:** Phase 10 — Filters & Smart Insights
+**Phase 10 — Filters & Smart Insights:** Complete
 
-Phase 9 established:
+**Current Stage:** Phase 11 — Testing & Polish
 
-* Dataset-specific analytics access from the Vendilume interface
-* A Django analytics route, view, and embedded-dashboard template
-* Environment-controlled Grafana base URL and dashboard UID settings
-* Validation that analytics are embedded only for existing, ready datasets
-* Automatic Grafana URL variables for the selected dataset and its full date range
-* A cleaner kiosk-mode dashboard presentation within the Django interface
-* A two-second Grafana health check with a clear unavailable-service message
-* Local-only anonymous Grafana access restricted to the read-only Viewer role
-* Automated coverage for successful embedding, Grafana unavailability, non-ready datasets, unknown datasets, and application navigation
+Phase 10 established:
 
-All 87 automated tests pass successfully.
+* Django-controlled date-range, product, and category filters
+* Conditional region, sales-channel, and customer filters when supported by the selected dataset
+* Dataset-scoped filter choices and server-side validation
+* Coordinated filter state across Django, Grafana, and Smart Insights
+* Explicit Grafana All values that prevent saved dashboard selections from leaking into embedded analytics
+* Updated queries for all seven Grafana panels
+* Deterministic smart insights for top product revenue, strongest category, highest unit sales, and strongest month
+* Clear feedback when no sales match the selected filters
+* Smart Insights that remain available when Grafana is offline
+* Automated coverage for filter validation, optional fields, insight calculations, empty results, and Django-to-Grafana integration
 
-Vendilume now connects dataset management directly to the corresponding embedded sales dashboard while preserving dataset boundaries and handling unavailable analytics infrastructure gracefully. The project is ready to add Django-controlled filters and rule-based smart insights.
+All 94 automated tests pass successfully.
+
+Vendilume now allows users to explore a selected dataset through synchronized dashboard filters and rule-based sales observations. Phase 11 will focus on broader testing, usability improvements, error handling, and final interface polish.
 
 ---
 
@@ -236,6 +239,7 @@ Vendilume/
 │   │   └── 0002_create_analytics_sales_view.py
 │   ├── services/
 │   │   ├── __init__.py
+│   │   ├── analytics_insights.py
 │   │   ├── csv_processor.py
 │   │   └── dataset_importer.py
 │   ├── templates/

@@ -17,8 +17,11 @@ from .services.csv_processor import (
 from .services.dataset_importer import (
     persist_processed_dataset,
 )
+from .services.analytics_insights import (
+    generate_sales_insights,
+)
 
-from .forms import DatasetUploadForm
+from .forms import AnalyticsFilterForm, DatasetUploadForm
 from .models import Dataset
 
 
@@ -135,8 +138,61 @@ def dataset_analytics(request, pk):
 
     grafana_available = False
     dashboard_url = None
+    filter_form = None
+    insights = []
+
+    selected_start_date = dataset.start_date
+    selected_end_date = dataset.end_date
+    selected_product = ""
+    selected_category = ""
+    selected_region = ""
+    selected_sales_channel = ""
+    selected_customer = ""
 
     if dataset.status == Dataset.Status.READY:
+        filter_form = AnalyticsFilterForm(
+            request.GET or None,
+            dataset=dataset,
+        )
+
+        if filter_form.is_bound and filter_form.is_valid():
+            selected_start_date = filter_form.cleaned_data[
+                "start_date"
+            ]
+            selected_end_date = filter_form.cleaned_data[
+                "end_date"
+            ]
+            selected_product = filter_form.cleaned_data[
+                "product"
+            ]
+            selected_category = filter_form.cleaned_data[
+                "category"
+            ]
+            selected_region = filter_form.cleaned_data.get(
+                "region",
+                "",
+            )
+            selected_sales_channel = filter_form.cleaned_data.get(
+                "sales_channel",
+                "",
+            )
+            selected_customer = filter_form.cleaned_data.get(
+                "customer",
+                "",
+            )
+
+        if selected_start_date and selected_end_date:
+            insights = generate_sales_insights(
+                dataset=dataset,
+                start_date=selected_start_date,
+                end_date=selected_end_date,
+                product=selected_product,
+                category=selected_category,
+                region=selected_region,
+                sales_channel=selected_sales_channel,
+                customer=selected_customer,
+            )
+
         try:
             health_url = f"{settings.GRAFANA_BASE_URL}/api/health"
 
@@ -148,28 +204,40 @@ def dataset_analytics(request, pk):
         if grafana_available:
             parameters = {
                 "var-dataset_id": dataset.pk,
+                "var-product": selected_product or "$__all",
+                "var-category": selected_category or "$__all",
+                "var-region": selected_region or "$__all",
+                "var-sales_channel": (
+                    selected_sales_channel or "$__all"
+                ),
+                "var-customer": selected_customer or "$__all",
                 "kiosk": "tv",
             }
 
-            if dataset.start_date and dataset.end_date:
+            if selected_start_date and selected_end_date:
                 range_start = datetime.combine(
-                    dataset.start_date,
+                    selected_start_date,
                     time.min,
                     tzinfo=datetime_timezone.utc,
                 )
                 range_end = datetime.combine(
-                    dataset.end_date + timedelta(days=1),
+                    selected_end_date + timedelta(days=1),
                     time.min,
                     tzinfo=datetime_timezone.utc,
                 )
 
-                parameters["from"] = int(range_start.timestamp() * 1000)
-                parameters["to"] = int(range_end.timestamp() * 1000) - 1
+                parameters["from"] = int(
+                    range_start.timestamp() * 1000
+                )
+                parameters["to"] = (
+                    int(range_end.timestamp() * 1000) - 1
+                )
 
             dashboard_url = (
                 f"{settings.GRAFANA_BASE_URL}"
                 f"/d/{settings.GRAFANA_DASHBOARD_UID}"
-                f"/vendilume-sales-overview?{urlencode(parameters)}"
+                f"/vendilume-sales-overview?"
+                f"{urlencode(parameters)}"
             )
 
     return render(
@@ -177,6 +245,8 @@ def dataset_analytics(request, pk):
         "datasets/analytics.html",
         {
             "dataset": dataset,
+            "filter_form": filter_form,
+            "insights": insights,
             "grafana_available": grafana_available,
             "dashboard_url": dashboard_url,
         },

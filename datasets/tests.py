@@ -20,7 +20,10 @@ from .services.csv_processor import (
 from .services.dataset_importer import (
     persist_processed_dataset,
 )
-from .forms import DatasetUploadForm, MAX_UPLOAD_SIZE
+from .services.analytics_insights import (
+    generate_sales_insights,
+)
+from .forms import AnalyticsFilterForm, DatasetUploadForm, MAX_UPLOAD_SIZE
 from .models import (
     Dataset,
     DatasetWarning,
@@ -1812,6 +1815,258 @@ class DatasetUploadWorkflowTests(TestCase):
             "&quot;Message Test&quot; was imported successfully.",
         )
 
+class AnalyticsFilterFormTests(TestCase):
+    def setUp(self):
+        self.dataset = Dataset.objects.create(
+            name="Filter Dataset",
+            original_filename="filters.csv",
+            currency="EUR",
+            status=Dataset.Status.READY,
+            row_count=1,
+            order_count=1,
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 1, 31),
+            has_customer_id=True,
+            has_region=True,
+            has_sales_channel=True,
+        )
+
+        order = SalesOrder.objects.create(
+            dataset=self.dataset,
+            source_order_id="ORDER-001",
+            order_date=date(2026, 1, 10),
+            customer_id="CUSTOMER-001",
+            region="Berlin",
+            sales_channel="Online",
+        )
+
+        SalesLine.objects.create(
+            order=order,
+            source_row_number=2,
+            product_name="Keyboard",
+            category="Electronics",
+            quantity=2,
+            unit_price=Decimal("50.00"),
+            gross_revenue=Decimal("100.00"),
+            discount_amount=Decimal("0.00"),
+            net_revenue=Decimal("100.00"),
+        )
+
+    def test_choices_are_scoped_to_selected_dataset(self):
+        form = AnalyticsFilterForm(
+            dataset=self.dataset
+        )
+
+        self.assertEqual(
+            list(form.fields["product"].choices),
+            [
+                ("", "All products"),
+                ("Keyboard", "Keyboard"),
+            ],
+        )
+        self.assertEqual(
+            list(form.fields["category"].choices),
+            [
+                ("", "All categories"),
+                ("Electronics", "Electronics"),
+            ],
+        )
+        self.assertEqual(
+            list(form.fields["region"].choices),
+            [
+                ("", "All regions"),
+                ("Berlin", "Berlin"),
+            ],
+        )
+
+    def test_optional_fields_are_removed_when_unsupported(self):
+        self.dataset.has_customer_id = False
+        self.dataset.has_region = False
+        self.dataset.has_sales_channel = False
+        self.dataset.save(
+            update_fields=[
+                "has_customer_id",
+                "has_region",
+                "has_sales_channel",
+            ]
+        )
+
+        form = AnalyticsFilterForm(
+            dataset=self.dataset
+        )
+
+        self.assertNotIn("customer", form.fields)
+        self.assertNotIn("region", form.fields)
+        self.assertNotIn("sales_channel", form.fields)
+
+    def test_invalid_filter_values_are_rejected(self):
+        form = AnalyticsFilterForm(
+            data={
+                "start_date": "2025-12-31",
+                "end_date": "2026-02-01",
+                "product": "Unknown Product",
+                "category": "",
+                "region": "",
+                "sales_channel": "",
+                "customer": "",
+            },
+            dataset=self.dataset,
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("start_date", form.errors)
+        self.assertIn("end_date", form.errors)
+        self.assertIn("product", form.errors)
+
+class SalesInsightTests(TestCase):
+    def setUp(self):
+        self.dataset = Dataset.objects.create(
+            name="Insight Dataset",
+            original_filename="insights.csv",
+            currency="EUR",
+            status=Dataset.Status.READY,
+            row_count=3,
+            order_count=3,
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 2, 28),
+            has_customer_id=True,
+            has_region=True,
+            has_sales_channel=True,
+        )
+
+        self.create_sale(
+            order_id="ORDER-001",
+            order_date=date(2026, 1, 10),
+            product="Keyboard",
+            category="Electronics",
+            quantity=2,
+            revenue="100.00",
+            region="Berlin",
+            channel="Online",
+            customer="CUSTOMER-001",
+        )
+        self.create_sale(
+            order_id="ORDER-002",
+            order_date=date(2026, 2, 10),
+            product="Chair",
+            category="Furniture",
+            quantity=5,
+            revenue="250.00",
+            region="Munich",
+            channel="Retail",
+            customer="CUSTOMER-002",
+        )
+        self.create_sale(
+            order_id="ORDER-003",
+            order_date=date(2026, 2, 15),
+            product="Mouse",
+            category="Electronics",
+            quantity=10,
+            revenue="100.00",
+            region="Berlin",
+            channel="Online",
+            customer="CUSTOMER-001",
+        )
+
+    def create_sale(
+        self,
+        *,
+        order_id,
+        order_date,
+        product,
+        category,
+        quantity,
+        revenue,
+        region,
+        channel,
+        customer,
+    ):
+        order = SalesOrder.objects.create(
+            dataset=self.dataset,
+            source_order_id=order_id,
+            order_date=order_date,
+            customer_id=customer,
+            region=region,
+            sales_channel=channel,
+        )
+
+        SalesLine.objects.create(
+            order=order,
+            source_row_number=2,
+            product_name=product,
+            category=category,
+            quantity=quantity,
+            unit_price=Decimal(revenue),
+            gross_revenue=Decimal(revenue),
+            discount_amount=Decimal("0.00"),
+            net_revenue=Decimal(revenue),
+        )
+
+    def test_insights_identify_strongest_results(self):
+        insights = generate_sales_insights(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+        )
+
+        self.assertIn(
+            "Chair generated the highest net revenue at "
+            "250.00 EUR.",
+            insights,
+        )
+        self.assertIn(
+            "Furniture was the strongest-performing category, "
+            "generating 250.00 EUR in net revenue.",
+            insights,
+        )
+        self.assertIn(
+            "Mouse sold the most units, with 10 items sold.",
+            insights,
+        )
+        self.assertIn(
+            "February 2026 recorded the highest monthly "
+            "net revenue at 350.00 EUR.",
+            insights,
+        )
+
+    def test_optional_filters_limit_insight_data(self):
+        insights = generate_sales_insights(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+            region="Munich",
+            sales_channel="Retail",
+            customer="CUSTOMER-002",
+        )
+
+        self.assertIn(
+            "Chair generated the highest net revenue at "
+            "250.00 EUR.",
+            insights,
+        )
+        self.assertTrue(
+            all("Keyboard" not in insight for insight in insights)
+        )
+        self.assertTrue(
+            all("Mouse" not in insight for insight in insights)
+        )
+
+    def test_no_matching_sales_returns_clear_message(self):
+        insights = generate_sales_insights(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+            product="Chair",
+            region="Berlin",
+        )
+
+        self.assertEqual(
+            insights,
+            [
+                "No sales data matches the selected filters."
+            ],
+        )
+
 class DatasetViewTests(TestCase):
     def setUp(self):
         self.dataset = Dataset.objects.create(
@@ -1975,6 +2230,26 @@ class DatasetViewTests(TestCase):
             f"var-dataset_id={self.dataset.pk}",
             dashboard_url,
         )
+        self.assertIn(
+            "var-product=%24__all",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-category=%24__all",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-region=%24__all",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-sales_channel=%24__all",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-customer=%24__all",
+            dashboard_url,
+        )
         self.assertIn("from=", dashboard_url)
         self.assertIn("to=", dashboard_url)
 
@@ -2046,6 +2321,88 @@ class DatasetViewTests(TestCase):
             reverse("datasets:analytics", args=[self.dataset.pk]),
         )
         self.assertContains(response, "View Analytics")
+
+    @override_settings(
+        GRAFANA_BASE_URL="http://grafana.test",
+        GRAFANA_DASHBOARD_UID="test-dashboard-uid",
+    )
+    @patch("datasets.views.urlopen")
+    def test_analytics_applies_filters_to_dashboard_and_insights(
+        self,
+        mock_urlopen,
+    ):
+        mock_urlopen.return_value.__enter__.return_value.status = 200
+
+        order = SalesOrder.objects.create(
+            dataset=self.dataset,
+            source_order_id="FILTERED-ORDER",
+            order_date=date(2026, 1, 10),
+            customer_id="CUSTOMER-001",
+            region="Berlin",
+            sales_channel="Online",
+        )
+
+        SalesLine.objects.create(
+            order=order,
+            source_row_number=2,
+            product_name="Keyboard",
+            category="Electronics",
+            quantity=2,
+            unit_price=Decimal("50.00"),
+            gross_revenue=Decimal("100.00"),
+            discount_amount=Decimal("0.00"),
+            net_revenue=Decimal("100.00"),
+        )
+
+        response = self.client.get(
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            ),
+            data={
+                "start_date": "2026-01-01",
+                "end_date": "2026-01-31",
+                "product": "Keyboard",
+                "category": "Electronics",
+                "region": "Berlin",
+                "sales_channel": "Online",
+                "customer": "CUSTOMER-001",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            response.context["filter_form"].is_valid()
+        )
+
+        dashboard_url = response.context["dashboard_url"]
+
+        self.assertIn(
+            "var-product=Keyboard",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-category=Electronics",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-region=Berlin",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-sales_channel=Online",
+            dashboard_url,
+        )
+        self.assertIn(
+            "var-customer=CUSTOMER-001",
+            dashboard_url,
+        )
+
+        self.assertContains(
+            response,
+            "Keyboard generated the highest net revenue at "
+            "100.00 EUR.",
+        )
 
 
 class AnalyticsSalesViewTests(TestCase):
