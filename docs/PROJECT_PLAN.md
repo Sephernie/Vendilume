@@ -14,6 +14,35 @@ The guiding principle is:
 
 ## 2. Development Roadmap
 
+### Roadmap Revision — September 2026
+
+Vendilume was originally planned as a twelve-phase project. That roadmap
+scheduled **Testing & Polish** as Phase 11 and **Final Documentation &
+Presentation** as Phase 12.
+
+After the original MVP was completed through Phase 10, its stable repository
+state was preserved with the Git tag `v0.1-mvp`. The roadmap was then expanded
+from twelve to fifteen phases to reflect additional time and a broader product
+direction.
+
+Three new phases were introduced:
+
+* Phase 11 — AI-Enhanced Business Insights
+* Phase 12 — User Accounts & Role-Based Access Control
+* Phase 13 — Vendilume UI/UX Redesign
+
+The two remaining phases from the original roadmap were retained and
+renumbered:
+
+* Original Phase 11 — Testing & Polish became Phase 14 — Testing, Security & Final Polish.
+* Original Phase 12 — Final Documentation & Presentation became Phase 15 — Final Documentation & Presentation.
+
+This revision preserves the completed original MVP as a clear milestone while
+allowing Vendilume's AI, internal-access, and interface goals to be developed as
+separate, testable stages.
+
+### Revised Roadmap
+
 ```text
 Phase 1   Project Foundation
               ↓
@@ -35,9 +64,15 @@ Phase 9   Django ↔ Grafana Integration
               ↓
 Phase 10  Filters & Smart Insights
               ↓
-Phase 11  Testing & Polish
+Phase 11  AI-Enhanced Business Insights [New]
               ↓
-Phase 12  Final Documentation & Presentation
+Phase 12  User Accounts & Role-Based Access Control [New]
+              ↓
+Phase 13  Vendilume UI/UX Redesign [New]
+              ↓
+Phase 14  Testing, Security & Final Polish [Originally Phase 11]
+              ↓
+Phase 15  Final Documentation & Presentation [Originally Phase 12]
 ```
 
 ---
@@ -418,11 +453,130 @@ Phase 10 is complete. Users can filter a ready dataset by date range, product, a
 
 ---
 
-## Phase 11 — Testing & Polish
+## Phase 11 — AI-Enhanced Business Insights
+
+> **Roadmap status:** New phase introduced after completion of the original Phase 10 MVP.
 
 ### Goal
 
-Verify that Vendilume behaves reliably and improve the overall user experience.
+Transform Vendilume's trusted KPI calculations and deterministic observations
+into clearer executive explanations, identified risks, and practical business
+recommendations through an external AI API.
+
+### Tasks
+
+* Define a structured AI-input schema based on the selected dataset and validated filter state.
+* Include trusted calculated KPIs, comparison periods, trends, leading and underperforming products or categories, discount behavior, and existing rule-based findings.
+* Keep authoritative calculations inside Vendilume rather than asking the AI model to calculate KPIs.
+* Create a dedicated AI-insight service that is independent from Django views and any future user account.
+* Store API credentials and configurable model settings in environment variables.
+* Request a structured response containing an executive summary, key findings, risks, recommended actions, and areas for further investigation.
+* Validate returned content and prevent unsupported numeric claims from being presented as trusted calculations.
+* Add timeouts, controlled error handling, and clear unavailable states.
+* Preserve the existing rule-based Smart Insights as the default fallback when the AI API is unavailable, disabled, or not configured.
+* Avoid sending the original CSV file when a smaller calculated business summary provides the required context.
+* Add automated tests using mocked API responses so the test suite does not depend on network access or paid API calls.
+* Document configuration, privacy considerations, limitations, and fallback behavior.
+
+### Completion
+
+Phase 11 is complete when Vendilume can send a controlled summary of trusted,
+filtered analytics to an AI service and display validated business explanations
+and recommended actions. Existing rule-based insights must continue to work
+without an API key or network connection, and automated tests must cover
+successful, invalid, unavailable, and timeout responses without making real API
+requests.
+
+---
+
+## Phase 12 — User Accounts & Role-Based Access Control
+
+> **Roadmap status:** New phase introduced after completion of the original Phase 10 MVP.
+
+### Goal
+
+Add authenticated company accounts with role-based access to one shared
+Vendilume installation and its shared collection of sales datasets.
+
+### Access Model
+
+Vendilume is intended to run locally within a company's network. Datasets
+belong to the company installation rather than to individual users, so this
+phase does not introduce per-user dataset ownership or multi-tenant data
+separation.
+
+Planned roles include:
+
+| Capability | Administrator | Sales Analyst | Manager |
+| --- | --- | --- | --- |
+| View available datasets | Yes | Yes | Yes |
+| View dashboards and insights | Yes | Yes | Yes |
+| Apply analytics filters | Yes | Yes | Yes |
+| Upload CSV datasets | Yes | Yes | No |
+| Delete or manage datasets | Yes | Configurable | No |
+| Manage users and roles | Yes | No | No |
+
+### Tasks
+
+* Add login, logout, password-management, and authenticated-session behavior.
+* Use Django groups and permissions for administrator, sales-analyst, and manager roles.
+* Let administrators create employee accounts and assign roles instead of offering unrestricted public signup.
+* Require authentication for company datasets, dashboards, and insights.
+* Enforce upload, deletion, user-management, and analytics permissions in Django views.
+* Hide navigation links and actions that the current role cannot use.
+* Return an appropriate permission-denied response when a user directly requests a forbidden URL.
+* Keep all authorized users on the same shared dataset history.
+* Review direct Grafana access so it cannot unintentionally bypass Vendilume's intended access controls.
+* Add automated tests for anonymous users, every role, permitted actions, forbidden actions, and direct URL access.
+
+### Completion
+
+Phase 12 is complete when company employees must authenticate and their assigned
+roles reliably control available pages and actions. Managers can review shared
+datasets, dashboards, filters, and insights without accessing upload or
+destructive operations; sales analysts can perform their assigned dataset work;
+and administrators can manage the installation and its users.
+
+---
+
+## Phase 13 — Vendilume UI/UX Redesign
+
+> **Roadmap status:** New phase introduced after completion of the original Phase 10 MVP.
+
+### Goal
+
+Create a distinctive, consistent, and professional Vendilume interface across
+the complete authenticated workflow.
+
+### Tasks
+
+* Define a reusable visual system for color, typography, spacing, buttons, forms, cards, tables, alerts, and navigation.
+* Redesign the home, login, dataset history, upload, detail, deletion, analytics, and AI-insight experiences.
+* Adapt navigation and visible actions to the current user's role.
+* Improve information hierarchy and make primary actions immediately understandable.
+* Create consistent loading, success, warning, empty, unavailable, and permission-denied states.
+* Improve the visual relationship between Django controls, AI insights, and the embedded Grafana dashboard.
+* Review responsive behavior across desktop and smaller displays.
+* Improve keyboard navigation, focus visibility, contrast, labels, and other accessibility fundamentals.
+* Preserve existing application behavior while templates and styles are changed.
+
+### Completion
+
+Phase 13 is complete when all user-facing pages share a consistent Vendilume
+design, role-specific workflows are clear, analytics and AI insights feel like
+one application experience, and the interface remains responsive and
+accessible without breaking existing functionality.
+
+---
+
+## Phase 14 — Testing, Security & Final Polish
+
+> **Roadmap history:** This phase continues and expands the original Phase 11 — Testing & Polish.
+
+### Goal
+
+Verify that the expanded Vendilume application behaves reliably and securely,
+then complete the final usability and quality improvements.
 
 ### Tasks
 
@@ -437,6 +591,11 @@ Test important scenarios such as:
 * Database insertion
 * Dashboard queries
 * Dashboard filters
+* AI response validation and fallback behavior
+* Authentication and session behavior
+* Role permissions and forbidden direct URLs
+* Shared company dataset access
+* Responsive and accessible interface behavior
 
 Additional work includes:
 
@@ -444,15 +603,20 @@ Additional work includes:
 * Improve navigation and layout.
 * Fix identified bugs.
 * Add automated tests where appropriate.
+* Review environment-variable and secret handling.
+* Review direct Grafana access within the intended local-network deployment.
 * Document testing results.
 
 ### Completion
 
-Core requirements have been tested and common failures are handled appropriately.
+Core requirements and post-MVP additions have been tested, access restrictions
+are enforced, and common failures are handled appropriately.
 
 ---
 
-## Phase 12 — Final Documentation & Presentation
+## Phase 15 — Final Documentation & Presentation
+
+> **Roadmap history:** This is the original Phase 12, renumbered after three new phases were introduced.
 
 ### Goal
 
@@ -482,7 +646,7 @@ View Dashboard
       ↓
 Apply Filters
       ↓
-View Insights
+View Rule-Based and AI-Enhanced Insights
 ```
 
 ### Completion
@@ -509,6 +673,10 @@ Grafana
 Dashboard
 ```
 
-Optional improvements should not delay completion of this workflow.
+The original workflow was completed through Phase 10 and preserved as
+`v0.1-mvp`. Phases 11 through 13 are deliberate post-MVP additions rather than
+unfinished parts of that original checkpoint.
 
-If development time becomes limited, the priority is to submit a smaller application that works reliably rather than a larger application containing incomplete features.
+If development time becomes limited, the priority remains a reliable,
+demonstrable application. The `v0.1-mvp` tag provides a stable reference to the
+completed original scope while expanded features are developed and verified.

@@ -43,6 +43,9 @@ Vendilume is planned to include:
 * Sales trends and visualizations
 * Dataset, date, product, and category filters
 * Rule-based smart insights
+* AI-enhanced business interpretations and recommended actions
+* Company user accounts with role-based access control
+* A redesigned, consistent application interface
 * User-friendly validation and error handling
 
 The project will prioritize completing the core analytics workflow before optional or advanced functionality is introduced.
@@ -58,6 +61,7 @@ The project will prioritize completing the core analytics workflow before option
 | **Pandas**           | Dataset processing and transformation     |
 | **PostgreSQL**       | Persistent relational data storage        |
 | **Grafana**          | Analytics dashboard and visualization     |
+| **AI API**           | Business-insight interpretation (planned) |
 | **Django Templates** | Server-rendered web interface             |
 | **Bootstrap**        | Interface styling                         |
 | **Docker Compose**   | Local service management                  |
@@ -129,7 +133,22 @@ Testing and implementation documentation will be added as development progresses
 
 ## Development Roadmap
 
-Vendilume is being developed incrementally across twelve phases:
+Vendilume was originally planned as a twelve-phase project. The original MVP
+was completed through Phase 10 and preserved in Git as `v0.1-mvp`. After that
+checkpoint, the roadmap was expanded to fifteen phases so that three new
+product-development stages could be completed before final testing and
+submission.
+
+The newly introduced phases are:
+
+* Phase 11 — AI-Enhanced Business Insights
+* Phase 12 — User Accounts & Role-Based Access Control
+* Phase 13 — Vendilume UI/UX Redesign
+
+The original Phase 11 — Testing & Polish became Phase 14, and the original
+Phase 12 — Final Documentation & Presentation became Phase 15.
+
+The revised roadmap is:
 
 ```text
 01  Project Foundation
@@ -152,9 +171,15 @@ Vendilume is being developed incrementally across twelve phases:
  ↓
 10  Filters & Smart Insights
  ↓
-11  Testing & Polish
+11  AI-Enhanced Business Insights [New]
  ↓
-12  Final Documentation & Presentation
+12  User Accounts & Role-Based Access Control [New]
+ ↓
+13  Vendilume UI/UX Redesign [New]
+ ↓
+14  Testing, Security & Final Polish [Originally Phase 11]
+ ↓
+15  Final Documentation & Presentation [Originally Phase 12]
 ```
 
 See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development plan.
@@ -183,7 +208,9 @@ See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development 
 
 **Phase 10 — Filters & Smart Insights:** Complete
 
-**Current Stage:** Phase 11 — Testing & Polish
+**Original MVP Checkpoint:** Completed through Phase 10 and tagged `v0.1-mvp`
+
+**Current Stage:** Phase 11 — AI-Enhanced Business Insights
 
 Phase 10 established:
 
@@ -200,7 +227,7 @@ Phase 10 established:
 
 All 94 automated tests pass successfully.
 
-Vendilume now allows users to explore a selected dataset through synchronized dashboard filters and rule-based sales observations. Phase 11 will focus on broader testing, usability improvements, error handling, and final interface polish.
+Vendilume now allows users to explore a selected dataset through synchronized dashboard filters and rule-based sales observations. Phase 11 will preserve those trusted calculations while adding AI-generated explanations, risks, and recommended business actions. The rule-based insight system will remain available as a deterministic fallback if the AI service is unavailable or not configured.
 
 ---
 
