@@ -4,7 +4,7 @@ from django.db.models.functions import TruncMonth
 from ..models import SalesLine
 
 
-def generate_sales_insights(
+def get_filtered_sales_lines(
     *,
     dataset,
     start_date,
@@ -44,6 +44,31 @@ def generate_sales_insights(
         sales_lines = sales_lines.filter(
             order__customer_id=customer
         )
+
+    return sales_lines
+
+
+def generate_sales_insights(
+    *,
+    dataset,
+    start_date,
+    end_date,
+    product="",
+    category="",
+    region="",
+    sales_channel="",
+    customer="",
+):
+    sales_lines = get_filtered_sales_lines(
+        dataset=dataset,
+        start_date=start_date,
+        end_date=end_date,
+        product=product,
+        category=category,
+        region=region,
+        sales_channel=sales_channel,
+        customer=customer,
+    )
 
     if not sales_lines.exists():
         return [

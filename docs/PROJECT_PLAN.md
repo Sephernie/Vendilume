@@ -480,12 +480,11 @@ recommendations through an external AI API.
 
 ### Completion
 
-Phase 11 is complete when Vendilume can send a controlled summary of trusted,
-filtered analytics to an AI service and display validated business explanations
-and recommended actions. Existing rule-based insights must continue to work
-without an API key or network connection, and automated tests must cover
-successful, invalid, unavailable, and timeout responses without making real API
-requests.
+Phase 11 is complete. Vendilume builds a versioned summary of trusted, filtered analytics and sends a sanitized form of that summary—not the original CSV—to Google Gemini only when AI insights are explicitly requested. Gemini returns a structured executive summary, important findings, risks, recommended actions, and areas for investigation, which Vendilume validates before display.
+
+Authoritative KPI calculations remain inside Vendilume. Dataset names, internal dataset IDs, and customer identifiers are removed from the external prompt. Configurable environment-based credentials and model selection, a controlled timeout, invalid-response handling, no-data handling, and provider-failure handling are implemented. Existing deterministic Smart Insights remain available as the fallback without an API key or network connection.
+
+Automated tests use mocked provider responses and cover trusted-summary calculations, filtering, rankings, trends, period comparisons, prompt construction, privacy sanitization, response validation, successful generation, invalid output, provider failure, timeout behavior, no matching data, fallback behavior, and analytics-page integration. The complete suite contains 118 passing tests.
 
 ---
 

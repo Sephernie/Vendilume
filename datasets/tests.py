@@ -1,9 +1,10 @@
+import json
 from datetime import date, timedelta
 from decimal import Decimal
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from urllib.error import URLError
 
 from django.test import SimpleTestCase, TestCase, override_settings
@@ -22,6 +23,26 @@ from .services.dataset_importer import (
 )
 from .services.analytics_insights import (
     generate_sales_insights,
+)
+from .services.analytics_summary import (
+    build_analytics_summary,
+)
+from .services.ai_insights import (
+    AIInsightRequestError,
+    AIInsightValidationError,
+    build_ai_insight_messages,
+    validate_ai_insight_response,
+)
+from .services.gemini_provider import (
+    DEFAULT_GEMINI_MODEL,
+    GeminiInsightProviderError,
+    build_gemini_response_schema,
+    generate_gemini_insights,
+)
+from .services.business_insights import (
+    AI_UNAVAILABLE_NOTICE,
+    NO_MATCHING_DATA_NOTICE,
+    generate_business_insights,
 )
 from .forms import AnalyticsFilterForm, DatasetUploadForm, MAX_UPLOAD_SIZE
 from .models import (
@@ -1918,6 +1939,363 @@ class AnalyticsFilterFormTests(TestCase):
         self.assertIn("end_date", form.errors)
         self.assertIn("product", form.errors)
 
+
+class AIInsightResponseValidationTests(SimpleTestCase):
+    def valid_payload(self):
+        return {
+            "executive_summary": (
+                "Revenue increased during the period."
+            ),
+            "important_findings": [
+                "Furniture generated the most revenue.",
+            ],
+            "risks_and_warnings": [],
+            "recommended_actions": [
+                "Review the strongest furniture products.",
+            ],
+            "areas_for_investigation": [
+                "Investigate changes in customer demand.",
+            ],
+        }
+
+    def test_valid_response_is_normalized(self):
+        payload = self.valid_payload()
+        payload["executive_summary"] = (
+            "  Revenue increased during the period.  "
+        )
+
+        result = validate_ai_insight_response(payload)
+
+        self.assertEqual(
+            result["executive_summary"],
+            "Revenue increased during the period.",
+        )
+
+    def test_response_must_be_an_object(self):
+        with self.assertRaises(
+            AIInsightValidationError
+        ):
+            validate_ai_insight_response([])
+
+    def test_response_rejects_missing_fields(self):
+        payload = self.valid_payload()
+        del payload["recommended_actions"]
+
+        with self.assertRaises(
+            AIInsightValidationError
+        ):
+            validate_ai_insight_response(payload)
+
+    def test_response_rejects_invalid_list_items(self):
+        payload = self.valid_payload()
+        payload["important_findings"] = [""]
+
+        with self.assertRaises(
+            AIInsightValidationError
+        ):
+            validate_ai_insight_response(payload)
+
+    def valid_summary(self):
+        return {
+            "schema_version": 1,
+            "has_data": True,
+            "dataset": {
+                "id": 1,
+                "name": "Test Dataset",
+                "currency": "EUR",
+            },
+            "metrics": {
+                "net_revenue": "450.00",
+            },
+        }
+
+    def test_prompt_contains_trusted_summary(self):
+        summary = self.valid_summary()
+
+        messages = build_ai_insight_messages(summary)
+
+        self.assertEqual(messages[0]["role"], "system")
+        self.assertEqual(messages[1]["role"], "user")
+
+        self.assertIn(
+            '"net_revenue": "450.00"',
+            messages[1]["content"],
+        )
+        self.assertIn(
+            '"currency": "EUR"',
+            messages[1]["content"],
+        )
+
+    def test_prompt_prohibits_recalculating_metrics(self):
+        messages = build_ai_insight_messages(
+            self.valid_summary()
+        )
+
+        self.assertIn(
+            "Never recalculate",
+            messages[0]["content"],
+        )
+        self.assertIn(
+            "Do not invent",
+            messages[0]["content"],
+        )
+
+    def test_prompt_rejects_summary_without_data(self):
+        summary = self.valid_summary()
+        summary["has_data"] = False
+
+        with self.assertRaises(AIInsightRequestError):
+            build_ai_insight_messages(summary)
+
+    def test_prompt_removes_sensitive_identifiers(self):
+        summary = self.valid_summary()
+        summary["dataset"]["id"] = 42
+        summary["dataset"]["name"] = (
+            "Confidential Customer Dataset"
+        )
+        summary["filters"] = {
+            "customer": "customer-123",
+        }
+
+        messages = build_ai_insight_messages(summary)
+        prompt = messages[1]["content"]
+
+        self.assertNotIn(
+            '"id": 42',
+            prompt,
+        )
+        self.assertNotIn(
+            "Confidential Customer Dataset",
+            prompt,
+        )
+        self.assertNotIn(
+            "customer-123",
+            prompt,
+        )
+        self.assertIn(
+            '"customer": "selected"',
+            prompt,
+        )
+
+    def test_prompt_explains_null_filters(self):
+        messages = build_ai_insight_messages(
+            self.valid_summary()
+        )
+
+        system_prompt = messages[0]["content"]
+
+        self.assertIn(
+            "A null filter means no filter was applied",
+            system_prompt,
+        )
+        self.assertIn(
+            "Determine field availability only from "
+            "data_availability",
+            system_prompt,
+        )
+
+
+class GeminiInsightProviderTests(SimpleTestCase):
+    def valid_payload(self):
+        return {
+            "executive_summary": (
+                "Revenue increased during the period."
+            ),
+            "important_findings": [
+                "Furniture generated the most revenue.",
+            ],
+            "risks_and_warnings": [],
+            "recommended_actions": [
+                "Review the strongest furniture products.",
+            ],
+            "areas_for_investigation": [
+                "Investigate changes in customer demand.",
+            ],
+        }
+
+    def valid_summary(self):
+        return {
+            "schema_version": 1,
+            "has_data": True,
+            "dataset": {
+                "id": 1,
+                "name": "Test Dataset",
+                "currency": "EUR",
+            },
+            "metrics": {
+                "net_revenue": "450.00",
+            },
+        }
+
+    def test_generates_validated_insights(self):
+        client = Mock()
+        client.models.generate_content.return_value.text = (
+            json.dumps(self.valid_payload())
+        )
+
+        result = generate_gemini_insights(
+            self.valid_summary(),
+            client=client,
+        )
+
+        self.assertEqual(
+            result["executive_summary"],
+            "Revenue increased during the period.",
+        )
+
+        request = (
+            client.models.generate_content.call_args.kwargs
+        )
+
+        self.assertEqual(
+            request["model"],
+            DEFAULT_GEMINI_MODEL,
+        )
+        self.assertEqual(
+            request["config"]["response_mime_type"],
+            "application/json",
+        )
+
+    def test_schema_removes_unsupported_string_limits(self):
+        schema = build_gemini_response_schema()
+        serialized_schema = json.dumps(schema)
+
+        self.assertNotIn(
+            "minLength",
+            serialized_schema,
+        )
+        self.assertNotIn(
+            "maxLength",
+            serialized_schema,
+        )
+        self.assertIn(
+            "maxItems",
+            serialized_schema,
+        )
+
+    def test_invalid_json_raises_provider_error(self):
+        client = Mock()
+        client.models.generate_content.return_value.text = (
+            "not valid JSON"
+        )
+
+        with self.assertRaises(
+            GeminiInsightProviderError
+        ):
+            generate_gemini_insights(
+                self.valid_summary(),
+                client=client,
+            )
+
+    def test_timeout_raises_provider_error(self):
+        client = Mock()
+        client.models.generate_content.side_effect = (
+            TimeoutError("The request timed out.")
+        )
+
+        with self.assertRaises(
+            GeminiInsightProviderError
+        ) as context:
+            generate_gemini_insights(
+                self.valid_summary(),
+                client=client,
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "The Gemini request failed.",
+        )
+
+
+class BusinessInsightServiceTests(SimpleTestCase):
+    def summary(self):
+        return {
+            "schema_version": 1,
+            "has_data": True,
+            "rule_based_insights": [
+                "Verified rule-based finding.",
+            ],
+        }
+
+    def ai_response(self):
+        return {
+            "executive_summary": "Revenue remained healthy.",
+            "important_findings": [
+                "Revenue reached its expected level.",
+            ],
+            "risks_and_warnings": [],
+            "recommended_actions": [
+                "Continue monitoring revenue.",
+            ],
+            "areas_for_investigation": [],
+        }
+
+    def test_returns_gemini_insights_when_available(self):
+        ai_generator = Mock(
+            return_value=self.ai_response()
+        )
+
+        result = generate_business_insights(
+            self.summary(),
+            ai_generator=ai_generator,
+        )
+
+        self.assertEqual(result["source"], "gemini")
+        self.assertEqual(
+            result["ai_insights"],
+            self.ai_response(),
+        )
+        self.assertIsNone(result["notice"])
+        ai_generator.assert_called_once()
+
+    def test_falls_back_when_gemini_fails(self):
+        ai_generator = Mock(
+            side_effect=GeminiInsightProviderError(
+                "Gemini failed."
+            )
+        )
+
+        result = generate_business_insights(
+            self.summary(),
+            ai_generator=ai_generator,
+        )
+
+        self.assertEqual(
+            result["source"],
+            "rule_based",
+        )
+        self.assertIsNone(result["ai_insights"])
+        self.assertEqual(
+            result["rule_based_insights"],
+            ["Verified rule-based finding."],
+        )
+        self.assertEqual(
+            result["notice"],
+            AI_UNAVAILABLE_NOTICE,
+        )
+
+    def test_does_not_call_gemini_without_data(self):
+        summary = self.summary()
+        summary["has_data"] = False
+
+        ai_generator = Mock()
+
+        result = generate_business_insights(
+            summary,
+            ai_generator=ai_generator,
+        )
+
+        self.assertEqual(
+            result["source"],
+            "rule_based",
+        )
+        self.assertEqual(
+            result["notice"],
+            NO_MATCHING_DATA_NOTICE,
+        )
+        ai_generator.assert_not_called()
+
+
 class SalesInsightTests(TestCase):
     def setUp(self):
         self.dataset = Dataset.objects.create(
@@ -2064,6 +2442,238 @@ class SalesInsightTests(TestCase):
             insights,
             [
                 "No sales data matches the selected filters."
+            ],
+        )
+
+    def test_analytics_summary_contains_trusted_metrics(self):
+        summary = build_analytics_summary(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+        )
+
+        self.assertEqual(summary["schema_version"], 1)
+        self.assertTrue(summary["has_data"])
+
+        self.assertEqual(
+            summary["dataset"],
+            {
+                "id": self.dataset.pk,
+                "name": "Insight Dataset",
+                "currency": "EUR",
+            },
+        )
+
+        self.assertEqual(
+            summary["period"],
+            {
+                "start_date": "2026-01-01",
+                "end_date": "2026-02-28",
+            },
+        )
+
+        self.assertEqual(summary["metrics"]["line_count"], 3)
+        self.assertEqual(summary["metrics"]["order_count"], 3)
+        self.assertEqual(
+            summary["metrics"]["total_quantity"],
+            17,
+        )
+        self.assertEqual(
+            summary["metrics"]["gross_revenue"],
+            "450.00",
+        )
+        self.assertEqual(
+            summary["metrics"]["net_revenue"],
+            "450.00",
+        )
+        self.assertEqual(
+            summary["metrics"]["average_order_value"],
+            "150.00",
+        )
+
+        self.assertIsNone(
+            summary["metrics"]["total_cost"]
+        )
+        self.assertIsNone(
+            summary["metrics"]["profit"]
+        )
+        self.assertIsNone(
+            summary["metrics"]["profit_margin_percent"]
+        )
+
+    def test_analytics_summary_uses_selected_filters(self):
+        summary = build_analytics_summary(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+            region="Berlin",
+            sales_channel="Online",
+        )
+
+        self.assertTrue(summary["has_data"])
+
+        self.assertEqual(
+            summary["filters"]["region"],
+            "Berlin",
+        )
+        self.assertEqual(
+            summary["filters"]["sales_channel"],
+            "Online",
+        )
+
+        self.assertEqual(summary["metrics"]["line_count"], 2)
+        self.assertEqual(summary["metrics"]["order_count"], 2)
+        self.assertEqual(
+            summary["metrics"]["total_quantity"],
+            12,
+        )
+        self.assertEqual(
+            summary["metrics"]["net_revenue"],
+            "200.00",
+        )
+        self.assertEqual(
+            summary["metrics"]["average_order_value"],
+            "100.00",
+        )
+
+    def test_analytics_summary_handles_no_matching_data(self):
+        summary = build_analytics_summary(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+            product="Unknown Product",
+        )
+
+        self.assertFalse(summary["has_data"])
+        self.assertEqual(summary["metrics"]["line_count"], 0)
+        self.assertEqual(summary["metrics"]["order_count"], 0)
+        self.assertEqual(
+            summary["metrics"]["total_quantity"],
+            0,
+        )
+        self.assertEqual(
+            summary["metrics"]["gross_revenue"],
+            "0.00",
+        )
+        self.assertEqual(
+            summary["metrics"]["net_revenue"],
+            "0.00",
+        )
+        self.assertIsNone(
+            summary["metrics"]["average_order_value"]
+        )
+    def test_analytics_summary_contains_rankings_and_trend(
+        self,
+    ):
+        summary = build_analytics_summary(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+        )
+
+        self.assertEqual(
+            summary["rankings"][
+                "top_products_by_net_revenue"
+            ][0],
+            {
+                "name": "Chair",
+                "net_revenue": "250.00",
+                "total_quantity": 5,
+                "order_count": 1,
+            },
+        )
+
+        self.assertEqual(
+            summary["rankings"][
+                "lowest_products_by_net_revenue"
+            ][0]["name"],
+            "Keyboard",
+        )
+
+        self.assertEqual(
+            summary["rankings"][
+                "top_categories_by_net_revenue"
+            ][0]["name"],
+            "Furniture",
+        )
+
+        self.assertEqual(
+            summary["monthly_trend"],
+            [
+                {
+                    "month": "2026-01",
+                    "net_revenue": "100.00",
+                    "total_quantity": 2,
+                    "order_count": 1,
+                },
+                {
+                    "month": "2026-02",
+                    "net_revenue": "350.00",
+                    "total_quantity": 15,
+                    "order_count": 2,
+                },
+            ],
+        )
+
+    def test_analytics_summary_compares_previous_period(
+        self,
+    ):
+        summary = build_analytics_summary(
+            dataset=self.dataset,
+            start_date=date(2026, 2, 1),
+            end_date=date(2026, 2, 28),
+        )
+
+        comparison = summary["period_comparison"]
+
+        self.assertEqual(
+            comparison["previous_period"],
+            {
+                "start_date": "2026-01-04",
+                "end_date": "2026-01-31",
+            },
+        )
+        self.assertTrue(
+            comparison["previous_has_data"]
+        )
+        self.assertEqual(
+            comparison["previous_metrics"],
+            {
+                "order_count": 1,
+                "total_quantity": 2,
+                "net_revenue": "100.00",
+            },
+        )
+        self.assertEqual(
+            comparison["percentage_changes"],
+            {
+                "order_count": "100.00",
+                "total_quantity": "650.00",
+                "net_revenue": "250.00",
+            },
+        )
+
+    def test_analytics_summary_includes_rule_based_insights(
+        self,
+    ):
+        summary = build_analytics_summary(
+            dataset=self.dataset,
+            start_date=self.dataset.start_date,
+            end_date=self.dataset.end_date,
+        )
+
+        self.assertEqual(
+            summary["rule_based_insights"],
+            [
+                "Chair generated the highest net revenue "
+                "at 250.00 EUR.",
+                "Furniture was the strongest-performing "
+                "category, generating 250.00 EUR in net "
+                "revenue.",
+                "Mouse sold the most units, with 10 items "
+                "sold.",
+                "February 2026 recorded the highest monthly "
+                "net revenue at 350.00 EUR.",
             ],
         )
 
@@ -2402,6 +3012,112 @@ class DatasetViewTests(TestCase):
             response,
             "Keyboard generated the highest net revenue at "
             "100.00 EUR.",
+        )
+
+
+    @patch("datasets.views.generate_business_insights")
+    @patch("datasets.views.build_analytics_summary")
+    @patch("datasets.views.urlopen")
+    def test_analytics_does_not_generate_ai_automatically(
+        self,
+        mock_urlopen,
+        mock_build_summary,
+        mock_generate_business_insights,
+    ):
+        mock_urlopen.side_effect = URLError(
+            "Grafana unavailable"
+        )
+
+        mock_build_summary.return_value = {
+            "has_data": False,
+            "rule_based_insights": [],
+        }
+
+        response = self.client.get(
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(
+            response.context["business_insight_result"]
+        )
+        mock_generate_business_insights.assert_not_called()
+
+    @patch("datasets.views.generate_business_insights")
+    @patch("datasets.views.build_analytics_summary")
+    @patch("datasets.views.urlopen")
+    def test_explicit_request_generates_ai_insights(
+        self,
+        mock_urlopen,
+        mock_build_summary,
+        mock_generate_business_insights,
+    ):
+        mock_urlopen.side_effect = URLError(
+            "Grafana unavailable"
+        )
+
+        summary = {
+            "has_data": True,
+            "rule_based_insights": [
+                "Verified Smart Insight.",
+            ],
+        }
+
+        mock_build_summary.return_value = summary
+
+        mock_generate_business_insights.return_value = {
+            "source": "gemini",
+            "notice": None,
+            "rule_based_insights": [
+                "Verified Smart Insight.",
+            ],
+            "ai_insights": {
+                "executive_summary": (
+                    "Revenue increased."
+                ),
+                "important_findings": [
+                    "Furniture performed strongly.",
+                ],
+                "risks_and_warnings": [],
+                "recommended_actions": [
+                    "Review furniture inventory.",
+                ],
+                "areas_for_investigation": [],
+            },
+        }
+
+        response = self.client.get(
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            ),
+            data={
+                "start_date": "2026-01-01",
+                "end_date": "2026-01-31",
+                "generate_ai": "1",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        mock_generate_business_insights.assert_called_once_with(
+            summary
+        )
+
+        self.assertContains(
+            response,
+            "AI-enhanced insights",
+        )
+        self.assertContains(
+            response,
+            "Revenue increased.",
+        )
+        self.assertContains(
+            response,
+            "Review furniture inventory.",
         )
 
 

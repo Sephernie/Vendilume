@@ -17,8 +17,11 @@ from .services.csv_processor import (
 from .services.dataset_importer import (
     persist_processed_dataset,
 )
-from .services.analytics_insights import (
-    generate_sales_insights,
+from .services.analytics_summary import (
+    build_analytics_summary,
+)
+from .services.business_insights import (
+    generate_business_insights,
 )
 
 from .forms import AnalyticsFilterForm, DatasetUploadForm
@@ -140,6 +143,7 @@ def dataset_analytics(request, pk):
     dashboard_url = None
     filter_form = None
     insights = []
+    business_insight_result = None
 
     selected_start_date = dataset.start_date
     selected_end_date = dataset.end_date
@@ -155,7 +159,12 @@ def dataset_analytics(request, pk):
             dataset=dataset,
         )
 
-        if filter_form.is_bound and filter_form.is_valid():
+        filters_are_valid = (
+            not filter_form.is_bound
+            or filter_form.is_valid()
+        )
+
+        if filter_form.is_bound and filters_are_valid:
             selected_start_date = filter_form.cleaned_data[
                 "start_date"
             ]
@@ -168,21 +177,22 @@ def dataset_analytics(request, pk):
             selected_category = filter_form.cleaned_data[
                 "category"
             ]
-            selected_region = filter_form.cleaned_data.get(
-                "region",
-                "",
-            )
-            selected_sales_channel = filter_form.cleaned_data.get(
-                "sales_channel",
-                "",
-            )
-            selected_customer = filter_form.cleaned_data.get(
-                "customer",
-                "",
-            )
+            selected_region = filter_form.cleaned_data[
+                "region"
+            ]
+            selected_sales_channel = filter_form.cleaned_data[
+                "sales_channel"
+            ]
+            selected_customer = filter_form.cleaned_data[
+                "customer"
+            ]
 
-        if selected_start_date and selected_end_date:
-            insights = generate_sales_insights(
+        if (
+            filters_are_valid
+            and selected_start_date
+            and selected_end_date
+        ):
+            analytics_summary = build_analytics_summary(
                 dataset=dataset,
                 start_date=selected_start_date,
                 end_date=selected_end_date,
@@ -192,6 +202,21 @@ def dataset_analytics(request, pk):
                 sales_channel=selected_sales_channel,
                 customer=selected_customer,
             )
+
+            insights = analytics_summary[
+                "rule_based_insights"
+            ]
+
+            ai_requested = (
+                request.GET.get("generate_ai") == "1"
+            )
+
+            if ai_requested:
+                business_insight_result = (
+                    generate_business_insights(
+                        analytics_summary
+                    )
+                )
 
         try:
             health_url = f"{settings.GRAFANA_BASE_URL}/api/health"
@@ -249,5 +274,8 @@ def dataset_analytics(request, pk):
             "insights": insights,
             "grafana_available": grafana_available,
             "dashboard_url": dashboard_url,
+            "business_insight_result": (
+                business_insight_result
+            ),
         },
     )

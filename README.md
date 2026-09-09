@@ -1,336 +1,282 @@
-# Vendilume
+<p align="center">
+  <img src="docs/images/vendilume-logo.png" alt="Vendilume" width="720">
+</p>
 
-> **Transform raw sales data into clear and understandable business intelligence.**
+<p align="center">
+  <strong>From raw sales data to trusted dashboards, business explanations, and practical next steps.</strong>
+</p>
 
-Vendilume is a web-based **sales analytics and business intelligence application** that transforms uploaded sales data into structured, interactive, and understandable analytics.
+<p align="center">
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13"></a>
+  <a href="https://www.djangoproject.com/"><img src="https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white" alt="Django 5.2"></a>
+  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-Analytics-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL"></a>
+  <a href="https://grafana.com/"><img src="https://img.shields.io/badge/Grafana-Dashboards-F46800?logo=grafana&logoColor=white" alt="Grafana"></a>
+  <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/Google_Gemini-AI_Insights-8E75B2?logo=googlegemini&logoColor=white" alt="Google Gemini"></a>
+  <img src="https://img.shields.io/badge/Tests-118_passing-2EA44F?logo=pytest&logoColor=white" alt="118 tests passing">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Sephernie/Vendilume" alt="License"></a>
+</p>
 
-Users provide sales data in CSV format, and Vendilume handles the workflow of validating, processing, storing, and analyzing that data before presenting the results through an interactive dashboard.
+<p align="center">
+  <a href="#why-vendilume">Why Vendilume?</a> •
+  <a href="#key-features">Features</a> •
+  <a href="#how-it-works">Workflow</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#development-roadmap">Roadmap</a>
+</p>
 
 ---
 
-## Overview
+<p align="center">
+  <img src="docs/images/grafana-dashboard.png" alt="Vendilume sales dashboard">
+</p>
 
-Raw sales data can contain valuable information about revenue, product performance, category performance, sales volume, and trends over time. Extracting this information manually, however, often requires data cleaning, calculations, database operations, and visualization.
+## Why Vendilume?
 
-Vendilume aims to provide a simpler workflow:
+Sales data is useful only when a business can trust the calculations, understand what changed, and decide what to do next. Vendilume brings that process into one focused workflow:
 
-```text
-Upload Sales Data
-        ↓
-Validate & Process
-        ↓
-Store Data
-        ↓
-Analyze
-        ↓
-Explore Results
+1. Upload a sales CSV.
+2. Validate, clean, and persist the data.
+3. Explore trusted KPIs and trends in Grafana.
+4. Apply synchronized business filters.
+5. Review deterministic findings and optional AI-enhanced recommendations.
+
+Unlike a generic chatbot attached to raw data, Vendilume calculates authoritative metrics itself. Google Gemini receives a controlled analytics summary and acts only as an interpretation layer.
+
+## Key Features
+
+| Data pipeline | Business intelligence | Decision support |
+| --- | --- | --- |
+| CSV structure and value validation | Dataset-scoped Grafana dashboard | Deterministic Smart Insights |
+| Cleaning and calculated financial fields | Revenue, orders, quantity, and AOV KPIs | Structured Gemini explanations |
+| Atomic PostgreSQL persistence | Product, category, and monthly trends | Risks and measurable actions |
+| Dataset history and management | Synchronized multi-dimensional filters | Privacy sanitization and fallback behavior |
+
+### Built and verified
+
+- All-or-nothing CSV ingestion with clear validation feedback
+- Dataset, date, product, category, region, sales-channel, and customer filters
+- Seven Grafana panels driven by the same validated filter state as Django
+- Trusted summaries containing KPIs, rankings, trends, comparisons, and discount behavior
+- Five-part AI output: executive summary, findings, risks, actions, and investigation areas
+- Strict response validation, a controlled timeout, and deterministic fallback
+- **118 automated tests**, with external API behavior mocked during the test suite
+
+## AI-Enhanced Business Insights
+
+<p align="center">
+  <img src="docs/images/analytics-ai-insights.png" alt="Vendilume AI-enhanced insights">
+</p>
+
+Vendilume does not ask the AI model to calculate business KPIs. The application first builds a versioned summary from verified database queries, then removes internal dataset identifiers and customer identifiers before creating the external prompt.
+
+The AI response is accepted only if it matches Vendilume's strict schema. If Gemini is unavailable, misconfigured, times out, returns invalid content, or has no matching data to interpret, the existing rule-based Smart Insights remain available.
+
+> [!IMPORTANT]
+> AI recommendations are explanatory guidance, not authoritative calculations. Vendilume's stored data, calculated metrics, and deterministic findings remain the source of truth.
+
+## How It Works
+
+```mermaid
+flowchart TD
+    A[Sales CSV] --> B[Django + Pandas validation]
+    B --> C[(PostgreSQL)]
+    C --> D[Grafana dashboard]
+    C --> E[Trusted analytics summary]
+    E --> F[Privacy sanitizer]
+    F --> G[Google Gemini]
+    G --> H[Schema validation]
+    H --> I[AI-enhanced insights]
+    E --> J[Rule-based fallback]
 ```
 
-The goal is to allow users to move from a raw sales dataset to useful business analytics without requiring them to manually perform each technical step.
+### Responsibility boundaries
 
----
-
-## Planned Features
-
-Vendilume is planned to include:
-
-* CSV sales dataset upload
-* Dataset validation and cleaning
-* Persistent sales-data storage
-* Dataset history and management
-* Sales KPI calculation
-* Interactive analytics dashboard
-* Sales trends and visualizations
-* Dataset, date, product, and category filters
-* Rule-based smart insights
-* AI-enhanced business interpretations and recommended actions
-* Company user accounts with role-based access control
-* A redesigned, consistent application interface
-* User-friendly validation and error handling
-
-The project will prioritize completing the core analytics workflow before optional or advanced functionality is introduced.
-
----
+| Component | Responsibility |
+| --- | --- |
+| **Django** | Application workflow, forms, views, filters, and error states |
+| **Pandas** | CSV parsing, validation, cleaning, and transformation |
+| **PostgreSQL** | Persistent sales storage and the read-only analytics view |
+| **Grafana** | Interactive KPI and sales-performance visualization |
+| **Vendilume analytics services** | Authoritative calculations, rankings, trends, and comparisons |
+| **Google Gemini** | Optional interpretation of the sanitized trusted summary |
 
 ## Technology Stack
 
-| Technology           | Role                                      |
-| -------------------- | ----------------------------------------- |
-| **Python**           | Primary programming language              |
-| **Django**           | Web application and backend               |
-| **Pandas**           | Dataset processing and transformation     |
-| **PostgreSQL**       | Persistent relational data storage        |
-| **Grafana**          | Analytics dashboard and visualization     |
-| **AI API**           | Business-insight interpretation (planned) |
-| **Django Templates** | Server-rendered web interface             |
-| **Bootstrap**        | Interface styling                         |
-| **Docker Compose**   | Local service management                  |
-| **Git & GitHub**     | Version control and repository management |
+| Technology | Role |
+| --- | --- |
+| Python 3.13 | Primary programming language |
+| Django 5.2 | Server-rendered web application and backend |
+| Pandas | Dataset processing and transformation |
+| PostgreSQL | Persistent relational storage and analytics view |
+| Grafana | Embedded analytics dashboard |
+| Google Gemini API | Structured business-insight interpretation |
+| Bootstrap | Responsive interface components |
+| Git and GitHub | Version control and project history |
 
-Detailed information about the technology choices can be found in [`docs/TECHNOLOGY_STACK.md`](docs/TECHNOLOGY_STACK.md).
+More detail is available in [`docs/TECHNOLOGY_STACK.md`](docs/TECHNOLOGY_STACK.md).
 
----
+## Getting Started
 
-## System Concept
+### Prerequisites
 
-Vendilume separates the sales analytics workflow into components with clear responsibilities:
+- Python 3.13
+- PostgreSQL
+- Grafana
+- Git
+- A Gemini API key only if AI-enhanced insights are required
 
-```text
-                 ┌─────────────┐
-                 │    User     │
-                 └──────┬──────┘
-                        │
-                        ▼
-                  ┌──────────┐
-                  │  Django  │
-                  └────┬─────┘
-                       │
-                       ▼
-                  ┌──────────┐
-                  │  Pandas  │
-                  └────┬─────┘
-                       │
-                       ▼
-                ┌────────────┐
-                │ PostgreSQL │
-                └─────┬──────┘
-                      │
-                      ▼
-                 ┌─────────┐
-                 │ Grafana │
-                 └────┬────┘
-                      │
-                      ▼
-               Sales Analytics
+### 1. Clone and prepare the project
+
+```bash
+git clone https://github.com/Sephernie/Vendilume.git
+cd Vendilume
+python -m venv .venv
 ```
 
-In short:
+Activate the environment:
 
-> **Django manages the application.
-> Pandas processes the data.
-> PostgreSQL stores the data.
-> Grafana presents the analytics.**
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
 
----
+```bash
+# macOS or Linux
+source .venv/bin/activate
+```
 
-## Documentation
+Install the dependencies:
 
-Detailed project documentation is available in the [`docs`](docs/) directory.
+```bash
+python -m pip install -r requirements.txt
+```
 
-| Document                                          | Description                                            |
-| ------------------------------------------------- | ------------------------------------------------------ |
-| [`PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md) | Project purpose, problem, objectives, users, and scope |
-| [`REQUIREMENTS.md`](docs/REQUIREMENTS.md)         | Functional and non-functional system requirements      |
-| [`TECHNOLOGY_STACK.md`](docs/TECHNOLOGY_STACK.md) | Selected technologies, responsibilities, and reasoning |
-| [`PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)         | Development phases, tasks, and planned deliverables    |
-| [`DATA_SPECIFICATION.md`](docs/DATA_SPECIFICATION.md) | Supported CSV structure, validation rules, and calculated fields |
-| [`SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md)       | System architecture, component responsibilities, and user interactions |
-| [`DATABASE_DESIGN.md`](docs/DATABASE_DESIGN.md)   | PostgreSQL schema, constraints, ERD, and analytics view |
+### 2. Configure the environment
 
-Testing and implementation documentation will be added as development progresses.
+Copy `.env.example` to `.env`, then replace its placeholder values:
 
----
+```powershell
+Copy-Item .env.example .env
+```
+
+```bash
+cp .env.example .env
+```
+
+The local configuration includes Django, PostgreSQL, and Grafana settings. Gemini is optional:
+
+```dotenv
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.5-flash
+```
+
+Leave `GEMINI_API_KEY` blank to use deterministic Smart Insights without making external AI requests. Never commit the real `.env` file or an API key.
+
+### 3. Initialize Django
+
+After creating the configured PostgreSQL database and role:
+
+```bash
+python manage.py migrate
+python manage.py check
+python manage.py runserver
+```
+
+Open `http://127.0.0.1:8000/`.
+
+### 4. Configure Grafana
+
+Import [`grafana/dashboards/vendilume-sales-overview.json`](grafana/dashboards/vendilume-sales-overview.json) into Grafana, connect it to the Vendilume PostgreSQL analytics view through a read-only database account, and place the resulting dashboard UID in `.env`.
+
+## Testing
+
+Run the complete test suite locally:
+
+```bash
+python manage.py test
+python manage.py makemigrations --check --dry-run
+```
+
+The current suite contains **118 tests** covering CSV validation, transactional persistence, database constraints, views, Grafana integration, filters, trusted analytics calculations, privacy sanitization, Gemini response validation, timeout behavior, and fallback paths. Tests do not make live Gemini requests.
+
+## Privacy, Reliability, and Limitations
+
+- The original CSV is never sent to Gemini.
+- Dataset names, internal dataset IDs, and customer identifiers are removed from the AI prompt.
+- Product, category, region, and sales-channel values may be included when needed for interpretation.
+- AI generation occurs only after the user explicitly requests it.
+- Provider errors and invalid responses fall back to deterministic Smart Insights.
+- Usage remains subject to the configured provider's availability and quota.
+- AI explanations can be incomplete or imperfect and should be reviewed alongside the verified metrics.
 
 ## Development Roadmap
 
-Vendilume was originally planned as a twelve-phase project. The original MVP
-was completed through Phase 10 and preserved in Git as `v0.1-mvp`. After that
-checkpoint, the roadmap was expanded to fifteen phases so that three new
-product-development stages could be completed before final testing and
-submission.
+Vendilume began with a twelve-phase roadmap. The original MVP was completed through Phase 10 and preserved as the Git tag [`v0.1-mvp`](https://github.com/Sephernie/Vendilume/tree/v0.1-mvp). Three post-MVP product phases were then inserted before final testing and documentation.
 
-The newly introduced phases are:
+| Phase | Scope | Status |
+| ---: | --- | :---: |
+| 1–9 | Foundation through Django–Grafana integration | Complete |
+| 10 | Filters and Smart Insights | Complete |
+| 11 | AI-Enhanced Business Insights **[New]** | **Complete** |
+| 12 | User Accounts and Role-Based Access Control **[New]** | **Current** |
+| 13 | Vendilume UI/UX Redesign **[New]** | Planned |
+| 14 | Testing, Security and Final Polish *(original Phase 11)* | Planned |
+| 15 | Final Documentation and Presentation *(original Phase 12)* | Planned |
 
-* Phase 11 — AI-Enhanced Business Insights
-* Phase 12 — User Accounts & Role-Based Access Control
-* Phase 13 — Vendilume UI/UX Redesign
-
-The original Phase 11 — Testing & Polish became Phase 14, and the original
-Phase 12 — Final Documentation & Presentation became Phase 15.
-
-The revised roadmap is:
-
-```text
-01  Project Foundation
- ↓
-02  Requirements & Software Design
- ↓
-03  Django Foundation
- ↓
-04  PostgreSQL & Data Models
- ↓
-05  Django User Interface
- ↓
-06  CSV Upload, Validation & Processing
- ↓
-07  Grafana Foundation
- ↓
-08  Sales Analytics Dashboard
- ↓
-09  Django ↔ Grafana Integration
- ↓
-10  Filters & Smart Insights
- ↓
-11  AI-Enhanced Business Insights [New]
- ↓
-12  User Accounts & Role-Based Access Control [New]
- ↓
-13  Vendilume UI/UX Redesign [New]
- ↓
-14  Testing, Security & Final Polish [Originally Phase 11]
- ↓
-15  Final Documentation & Presentation [Originally Phase 12]
-```
-
-See [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) for the complete development plan.
-
----
-
-## Project Status
-
-**Phase 1 — Project Foundation:** Complete
-
-**Phase 2 — Requirements & Software Design:** Complete
-
-**Phase 3 — Django Foundation:** Complete
-
-**Phase 4 — PostgreSQL & Data Models:** Complete
-
-**Phase 5 — Django User Interface:** Complete
-
-**Phase 6 — CSV Upload, Validation & Processing:** Complete
-
-**Phase 7 — Grafana Foundation:** Complete
-
-**Phase 8 — Sales Analytics Dashboard:** Complete
-
-**Phase 9 — Django ↔ Grafana Integration:** Complete
-
-**Phase 10 — Filters & Smart Insights:** Complete
-
-**Original MVP Checkpoint:** Completed through Phase 10 and tagged `v0.1-mvp`
-
-**Current Stage:** Phase 11 — AI-Enhanced Business Insights
-
-Phase 10 established:
-
-* Django-controlled date-range, product, and category filters
-* Conditional region, sales-channel, and customer filters when supported by the selected dataset
-* Dataset-scoped filter choices and server-side validation
-* Coordinated filter state across Django, Grafana, and Smart Insights
-* Explicit Grafana All values that prevent saved dashboard selections from leaking into embedded analytics
-* Updated queries for all seven Grafana panels
-* Deterministic smart insights for top product revenue, strongest category, highest unit sales, and strongest month
-* Clear feedback when no sales match the selected filters
-* Smart Insights that remain available when Grafana is offline
-* Automated coverage for filter validation, optional fields, insight calculations, empty results, and Django-to-Grafana integration
-
-All 94 automated tests pass successfully.
-
-Vendilume now allows users to explore a selected dataset through synchronized dashboard filters and rule-based sales observations. Phase 11 will preserve those trusted calculations while adding AI-generated explanations, risks, and recommended business actions. The rule-based insight system will remain available as a deterministic fallback if the AI service is unavailable or not configured.
-
----
+The full plan and revision history are preserved in [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md).
 
 ## Repository Structure
 
-The repository currently follows this structure:
-
 ```text
 Vendilume/
-│
-├── config/
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-│
-├── core/
-│   ├── migrations/
-│   │   └── __init__.py
-│   ├── templates/
-│   │   └── core/
-│   │       └── home.html
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── models.py
-│   ├── tests.py
-│   ├── urls.py
-│   └── views.py
-│
+├── config/                         # Django configuration
+├── core/                           # Shared pages and navigation
 ├── datasets/
-│   ├── migrations/
-│   │   ├── __init__.py
-│   │   ├── 0001_initial.py
-│   │   └── 0002_create_analytics_sales_view.py
+│   ├── migrations/                # Database schema and analytics view
 │   ├── services/
-│   │   ├── __init__.py
-│   │   ├── analytics_insights.py
-│   │   ├── csv_processor.py
-│   │   └── dataset_importer.py
-│   ├── templates/
-│   │   └── datasets/
-│   │       ├── analytics.html
-│   │       ├── delete_confirm.html
-│   │       ├── detail.html
-│   │       ├── history.html
-│   │       └── upload.html
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
+│   │   ├── ai_insights.py         # Prompt and response contracts
+│   │   ├── analytics_insights.py  # Deterministic findings
+│   │   ├── analytics_summary.py   # Trusted analytics summary
+│   │   ├── business_insights.py   # AI/fallback orchestration
+│   │   ├── csv_processor.py       # CSV validation and transformation
+│   │   ├── dataset_importer.py    # Atomic persistence
+│   │   └── gemini_provider.py     # Gemini adapter
+│   ├── templates/                 # Dataset-facing pages
+│   ├── forms.py
 │   ├── models.py
 │   ├── tests.py
-│   ├── urls.py
 │   └── views.py
-│
-├── docs/
-│   ├── PROJECT_OVERVIEW.md
-│   ├── REQUIREMENTS.md
-│   ├── TECHNOLOGY_STACK.md
-│   ├── PROJECT_PLAN.md
-│   ├── DATA_SPECIFICATION.md
-│   ├── SYSTEM_DESIGN.md
-│   └── DATABASE_DESIGN.md
-│
-├── grafana/
-│   └── dashboards/
-│       └── vendilume-sales-overview.json
-│
-├── templates/
-│   └── base.html
-│
+├── docs/                           # Project and design documentation
+├── grafana/dashboards/             # Version-controlled dashboard JSON
+├── templates/                      # Shared Django templates
 ├── .env.example
-├── .gitattributes
-├── .gitignore
-├── LICENSE
 ├── manage.py
-├── README.md
 └── requirements.txt
 ```
 
----
+## Documentation
+
+| Document | Description |
+| --- | --- |
+| [`PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md) | Purpose, objectives, users, and scope |
+| [`REQUIREMENTS.md`](docs/REQUIREMENTS.md) | Functional and non-functional requirements |
+| [`TECHNOLOGY_STACK.md`](docs/TECHNOLOGY_STACK.md) | Technology responsibilities and rationale |
+| [`PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) | Development phases and roadmap history |
+| [`DATA_SPECIFICATION.md`](docs/DATA_SPECIFICATION.md) | Supported CSV contract and calculated fields |
+| [`SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Architecture, responsibilities, and interactions |
+| [`DATABASE_DESIGN.md`](docs/DATABASE_DESIGN.md) | PostgreSQL schema, constraints, and analytics view |
 
 ## Project Scope
 
-Vendilume focuses specifically on the workflow between **sales-data import and sales-performance analysis**.
-
-It is not intended to become a complete ERP, e-commerce platform, or enterprise business intelligence system.
-
-The priority is to build a focused and reliable application that successfully performs its core workflow before considering more advanced functionality.
-
----
+Vendilume focuses on the workflow between **sales-data import and sales-performance analysis**. It is not intended to replace a complete ERP, e-commerce platform, or enterprise-wide BI platform.
 
 ## Author
 
-**Sepehr Bakhshivash**
+**Sepehr Bakhshivash** — aspiring Data Analyst / Data Scientist
 
-Aspiring Data Analyst / Data Scientist
-- [`LinkedIn`](https://linkedin.com/in/sepehr-bakhshivash-29121841a)
-- [`GitHub`](https://github.com/Sephernie)
-
----
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Sepehr_Bakhshivash-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sepehr-bakhshivash)
+[![GitHub](https://img.shields.io/badge/GitHub-Sephernie-181717?logo=github&logoColor=white)](https://github.com/Sephernie)
 
 ## License
 
-This project is licensed under the terms provided in the [`LICENSE`](LICENSE) file.
+This project is licensed under the terms provided in [`LICENSE`](LICENSE).
