@@ -1,6 +1,8 @@
 import json
 from datetime import date, timedelta
 from decimal import Decimal
+from io import StringIO
+
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -13,6 +15,9 @@ from django.core.exceptions import ValidationError
 from django.db import connection, IntegrityError, transaction
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from django.core.management import call_command
 
 from .services.csv_processor import (
     CsvValidationError,
@@ -50,6 +55,11 @@ from .models import (
     DatasetWarning,
     SalesLine,
     SalesOrder,
+)
+from accounts.roles import (
+    ADMINISTRATORS,
+    MANAGERS,
+    SALES_ANALYSTS,
 )
 
 
@@ -1321,6 +1331,13 @@ class DatasetImportServiceTests(TestCase):
 
 
 class DatasetUploadFormTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="upload.analyst",
+            password="TestPassword123!",
+        )
+        self.client.force_login(self.user)
+
     def make_csv_file(
         self,
         name="sales.csv",
@@ -1718,6 +1735,22 @@ class DatabaseConstraintTests(TestCase):
         )
 
 class DatasetUploadWorkflowTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="upload.analyst",
+            password="TestPassword123!",
+        )
+        permissions = Permission.objects.filter(
+            content_type__app_label="datasets",
+            codename__in=[
+                "add_dataset",
+                "view_dataset",
+            ],
+        )
+        self.user.user_permissions.add(*permissions)
+
+        self.client.force_login(self.user)
+
     def make_csv_file(
         self,
         content,
@@ -2677,8 +2710,266 @@ class SalesInsightTests(TestCase):
             ],
         )
 
+class DatasetAuthenticationTests(TestCase):
+    def setUp(self):
+        self.dataset = Dataset.objects.create(
+            name="Protected Dataset",
+            original_filename="protected.csv",
+            currency="EUR",
+            status=Dataset.Status.PROCESSING,
+        )
+
+    def test_anonymous_user_is_redirected_from_dataset_pages(self):
+        protected_urls = [
+            reverse("datasets:history"),
+            reverse("datasets:upload"),
+            reverse(
+                "datasets:detail",
+                args=[self.dataset.pk],
+            ),
+            reverse(
+                "datasets:delete",
+                args=[self.dataset.pk],
+            ),
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            ),
+        ]
+
+        for url in protected_urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+
+                self.assertRedirects(
+                    response,
+                    f"{reverse('login')}?next={url}",
+                )
+
+class DatasetRoleAccessTests(TestCase):
+    def setUp(self):
+        call_command(
+            "setup_roles",
+            stdout=StringIO(),
+        )
+
+        self.dataset = Dataset.objects.create(
+            name="Role Access Dataset",
+            original_filename="role-access.csv",
+            currency="EUR",
+            status=Dataset.Status.PROCESSING,
+        )
+
+        user_model = get_user_model()
+
+        self.administrator = user_model.objects.create_user(
+            username="administrator",
+            password="TestPassword123!",
+        )
+        self.administrator.groups.add(
+            Group.objects.get(name=ADMINISTRATORS)
+        )
+
+        self.sales_analyst = user_model.objects.create_user(
+            username="sales.analyst",
+            password="TestPassword123!",
+        )
+        self.sales_analyst.groups.add(
+            Group.objects.get(name=SALES_ANALYSTS)
+        )
+
+        self.manager = user_model.objects.create_user(
+            username="manager",
+            password="TestPassword123!",
+        )
+        self.manager.groups.add(
+            Group.objects.get(name=MANAGERS)
+        )
+
+    def test_all_roles_can_view_shared_dataset_pages(self):
+        view_urls = [
+            reverse("datasets:history"),
+            reverse(
+                "datasets:detail",
+                args=[self.dataset.pk],
+            ),
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            ),
+        ]
+
+        for user in (
+            self.administrator,
+            self.sales_analyst,
+            self.manager,
+        ):
+            self.client.force_login(user)
+
+            for url in view_urls:
+                with self.subTest(
+                    username=user.username,
+                    url=url,
+                ):
+                    response = self.client.get(url)
+                    self.assertEqual(response.status_code, 200)
+
+    def test_administrator_and_analyst_can_access_upload(self):
+        upload_url = reverse("datasets:upload")
+
+        for user in (
+            self.administrator,
+            self.sales_analyst,
+        ):
+            self.client.force_login(user)
+
+            with self.subTest(username=user.username):
+                response = self.client.get(upload_url)
+                self.assertEqual(response.status_code, 200)
+
+    def test_manager_cannot_access_upload_or_delete(self):
+        self.client.force_login(self.manager)
+
+        forbidden_urls = [
+            reverse("datasets:upload"),
+            reverse(
+                "datasets:delete",
+                args=[self.dataset.pk],
+            ),
+        ]
+
+        for url in forbidden_urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 403)
+
+    def test_administrator_and_analyst_can_delete(self):
+        delete_url = reverse(
+            "datasets:delete",
+            args=[self.dataset.pk],
+        )
+
+        expected_statuses = (
+            (self.administrator, 200),
+            (self.sales_analyst, 200),
+            (self.manager, 403),
+        )
+
+        for user, expected_status in expected_statuses:
+            self.client.force_login(user)
+
+            with self.subTest(username=user.username):
+                response = self.client.get(delete_url)
+                self.assertEqual(
+                    response.status_code,
+                    expected_status,
+                )
+
+    def test_manager_interface_hides_upload_and_delete(self):
+        self.client.force_login(self.manager)
+
+        history_response = self.client.get(
+            reverse("datasets:history")
+        )
+        detail_response = self.client.get(
+            reverse(
+                "datasets:detail",
+                args=[self.dataset.pk],
+            )
+        )
+
+        self.assertNotContains(
+            history_response,
+            reverse("datasets:upload"),
+        )
+        self.assertNotContains(
+            detail_response,
+            reverse(
+                "datasets:delete",
+                args=[self.dataset.pk],
+            ),
+        )
+
+    def test_analyst_interface_shows_upload_and_delete(self):
+        self.client.force_login(self.sales_analyst)
+
+        history_response = self.client.get(
+            reverse("datasets:history")
+        )
+        detail_response = self.client.get(
+            reverse(
+                "datasets:detail",
+                args=[self.dataset.pk],
+            )
+        )
+
+        self.assertContains(
+            history_response,
+            reverse("datasets:upload"),
+        )
+        self.assertContains(
+            detail_response,
+            reverse(
+                "datasets:delete",
+                args=[self.dataset.pk],
+            ),
+        )
+
+    def test_administrator_interface_shows_upload_and_delete(self):
+        self.client.force_login(self.administrator)
+
+        history_response = self.client.get(
+            reverse("datasets:history")
+        )
+        detail_response = self.client.get(
+            reverse(
+                "datasets:detail",
+                args=[self.dataset.pk],
+            )
+        )
+
+        self.assertContains(
+            history_response,
+            reverse("datasets:upload"),
+        )
+        self.assertContains(
+            detail_response,
+            reverse(
+                "datasets:delete",
+                args=[self.dataset.pk],
+            ),
+        )
+
+    def test_permission_denied_page_is_clear(self):
+        self.client.force_login(self.manager)
+
+        response = self.client.get(
+            reverse("datasets:upload")
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(
+            response,
+            "Access denied",
+            status_code=403,
+        )
+
 class DatasetViewTests(TestCase):
     def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="dataset.employee",
+            password="TestPassword123!",
+        )
+        self.client.force_login(self.user)
+        permissions = Permission.objects.filter(
+            content_type__app_label="datasets",
+            codename__in=[
+                "add_dataset",
+                "delete_dataset",
+                "view_dataset",
+            ],
+        )
+        self.user.user_permissions.add(*permissions)
         self.dataset = Dataset.objects.create(
             name="Interface Test Dataset",
             original_filename="interface_test.csv",

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | Vendilume{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <section class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h2 fw-bold mb-3">Sign in</h1>
+
+                <p class="text-body-secondary">
+                    Use your company Vendilume account.
+                </p>
+
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        Your username or password was incorrect.
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    <button class="btn btn-primary w-100" type="submit">
+                        Sign in
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

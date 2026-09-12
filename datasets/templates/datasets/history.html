@@ -16,14 +16,16 @@ Review sales datasets previously added to Vendilume.
         </p>
     </div>
 
-    <div>
-        <a
-            class="btn btn-primary"
-            href="{% url 'datasets:upload' %}"
-        >
-            Upload Dataset
-        </a>
-    </div>
+    {% if perms.datasets.add_dataset %}
+        <div>
+            <a
+                class="btn btn-primary"
+                href="{% url 'datasets:upload' %}"
+            >
+                Upload Dataset
+            </a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
 
@@ -106,12 +108,14 @@ Review sales datasets previously added to Vendilume.
                     Your uploaded sales datasets will appear here.
                 </p>
 
-                <a
-                    class="btn btn-primary"
-                    href="{% url 'datasets:upload' %}"
-                >
-                    Upload Your First Dataset
-                </a>
+                {% if perms.datasets.add_dataset %}
+                    <a
+                        class="btn btn-primary"
+                        href="{% url 'datasets:upload' %}"
+                    >
+                        Upload Your First Dataset
+                    </a>
+                {% endif %}
             </div>
         </div>
     {% endif %}

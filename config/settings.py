@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "accounts.apps.AccountsConfig",
     "core.apps.CoreConfig",
     "datasets.apps.DatasetsConfig",
 ]
@@ -137,3 +138,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GRAFANA_BASE_URL = os.environ["GRAFANA_BASE_URL"].rstrip("/")
 GRAFANA_DASHBOARD_UID = os.environ["GRAFANA_DASHBOARD_UID"]
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "datasets:history"
+LOGOUT_REDIRECT_URL = "login"
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 15 * 60
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"

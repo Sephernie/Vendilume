@@ -23,11 +23,17 @@ from .services.analytics_summary import (
 from .services.business_insights import (
     generate_business_insights,
 )
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required,
+)
 
 from .forms import AnalyticsFilterForm, DatasetUploadForm
 from .models import Dataset
 
 
+@login_required
+@permission_required("datasets.view_dataset", raise_exception=True)
 def dataset_history(request):
     datasets = Dataset.objects.all()
 
@@ -38,6 +44,8 @@ def dataset_history(request):
     return render(request, "datasets/history.html", context)
 
 
+@login_required
+@permission_required("datasets.view_dataset", raise_exception=True)
 def dataset_detail(request, pk):
     dataset = get_object_or_404(
         Dataset.objects.prefetch_related("warnings"),
@@ -51,6 +59,8 @@ def dataset_detail(request, pk):
     return render(request, "datasets/detail.html", context)
 
 
+@login_required
+@permission_required("datasets.delete_dataset", raise_exception=True)
 def delete_dataset(request, pk):
     dataset = get_object_or_404(Dataset, pk=pk)
 
@@ -72,6 +82,8 @@ def delete_dataset(request, pk):
     return render(request, "datasets/delete_confirm.html", context)
 
 
+@login_required
+@permission_required("datasets.add_dataset", raise_exception=True)
 def upload_dataset(request):
     if request.method == "POST":
         form = DatasetUploadForm(
@@ -136,6 +148,8 @@ def upload_dataset(request):
     )
 
 
+@login_required
+@permission_required("datasets.view_dataset", raise_exception=True)
 def dataset_analytics(request, pk):
     dataset = get_object_or_404(Dataset, pk=pk)
 

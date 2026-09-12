@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Access Denied | Vendilume{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <section class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5 text-center">
+                <h1 class="h2 fw-bold">Access denied</h1>
+
+                <p class="text-body-secondary">
+                    Your Vendilume account does not have permission
+                    to access this page or perform this action.
+                </p>
+
+                {% if perms.datasets.view_dataset %}
+                    <a
+                        class="btn btn-primary"
+                        href="{% url 'datasets:history' %}"
+                    >
+                        Return to Dataset History
+                    </a>
+                {% else %}
+                    <a
+                        class="btn btn-primary"
+                        href="{% url 'home' %}"
+                    >
+                        Return Home
+                    </a>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

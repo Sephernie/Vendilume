@@ -58,12 +58,14 @@ View details for the {{ dataset.name }} sales dataset.
                     </button>
                 {% endif %}
 
-                <a
-                    href="{% url 'datasets:delete' dataset.pk %}"
-                    class="btn btn-outline-danger"
-                >
-                    Delete
-                </a>
+                {% if perms.datasets.delete_dataset %}
+                    <a
+                        href="{% url 'datasets:delete' dataset.pk %}"
+                        class="btn btn-outline-danger"
+                    >
+                        Delete
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

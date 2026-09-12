@@ -51,22 +51,71 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-lg-center">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'home' %}">
                                 Home
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'datasets:upload' %}">
-                                Upload Dataset
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'datasets:history' %}">
-                                Dataset History
-                            </a>
-                        </li>
+
+                        {% if user.is_authenticated %}
+                            {% if perms.datasets.add_dataset %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'datasets:upload' %}">
+                                        Upload Dataset
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% if perms.datasets.view_dataset %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'datasets:history' %}">
+                                        Dataset History
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% if user.is_staff and perms.auth.view_user %}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="{% url 'admin:auth_user_changelist' %}"
+                                    >
+                                        Manage Users
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'password_change' %}">
+                                    Change Password
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <span class="nav-link disabled">
+                                    {{ user.get_full_name|default:user.username }}
+                                </span>
+                            </li>
+
+                            <li class="nav-item">
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button
+                                        class="nav-link btn btn-link border-0"
+                                        type="submit"
+                                    >
+                                        Sign out
+                                    </button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">
+                                    Sign in
+                                </a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

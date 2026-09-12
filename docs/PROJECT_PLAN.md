@@ -490,7 +490,7 @@ Automated tests use mocked provider responses and cover trusted-summary calculat
 
 ## Phase 12 — User Accounts & Role-Based Access Control
 
-> **Roadmap status:** New phase introduced after completion of the original Phase 10 MVP.
+> **Roadmap status:** New phase introduced after completion of the original Phase 10 MVP — **Complete**.
 
 ### Goal
 
@@ -512,7 +512,7 @@ Planned roles include:
 | View dashboards and insights | Yes | Yes | Yes |
 | Apply analytics filters | Yes | Yes | Yes |
 | Upload CSV datasets | Yes | Yes | No |
-| Delete or manage datasets | Yes | Configurable | No |
+| Delete or manage datasets | Yes | Yes | No |
 | Manage users and roles | Yes | No | No |
 
 ### Tasks
@@ -530,11 +530,19 @@ Planned roles include:
 
 ### Completion
 
-Phase 12 is complete when company employees must authenticate and their assigned
-roles reliably control available pages and actions. Managers can review shared
-datasets, dashboards, filters, and insights without accessing upload or
-destructive operations; sales analysts can perform their assigned dataset work;
-and administrators can manage the installation and its users.
+Phase 12 is complete. Vendilume now provides authenticated company accounts using Django's authentication system, including login, logout, password changes, protected dataset pages, session-expiration behavior, and a clear permission-denied response.
+
+Three shared-installation roles are configured through an idempotent management command:
+
+- **Administrators** can view, upload, change, and delete datasets and can manage employee accounts and roles through Django Admin.
+- **Sales Analysts** can upload, review, and delete shared datasets and access dashboards, filters, and insights, but cannot manage users or roles.
+- **Managers** can review shared datasets, dashboards, filters, and insights without access to upload, deletion, or user management.
+
+Administrators create employee accounts and assign their roles through the protected Django Admin interface. Vendilume does not expose public account registration. Navigation links and dataset actions reflect the current user's permissions, while server-side permission checks prevent unauthorized access through manually entered URLs.
+
+Authenticated sessions expire when the browser session ends and after 15 minutes of inactivity. Grafana was verified to listen only on `127.0.0.1`, embedded anonymous access is limited to the Viewer role, and its PostgreSQL datasource continues to use a read-only database account.
+
+Automated tests cover authentication, logout, password changes, role creation, role permissions, shared dataset access, upload and deletion restrictions, administrator account management, unavailable public signup, role-aware interface behavior, direct-URL enforcement, and the custom permission-denied page. The complete suite contains **136 passing tests**.
 
 ---
 
