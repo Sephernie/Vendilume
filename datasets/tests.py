@@ -1366,6 +1366,22 @@ class DatasetUploadFormTests(TestCase):
             "EUR",
         )
 
+    def test_currency_uses_dropdown_with_supported_choices(self):
+        form = DatasetUploadForm()
+
+        self.assertEqual(
+            form.fields["currency"].widget.input_type,
+            "select",
+        )
+        self.assertIn(
+            ("EUR", "EUR — Euro"),
+            form.fields["currency"].choices,
+        )
+        self.assertIn(
+            ("IRR", "IRR — Iranian Rial"),
+            form.fields["currency"].choices,
+        )
+
     def test_dataset_name_is_optional(self):
         form = DatasetUploadForm(
             data={
@@ -1844,6 +1860,21 @@ class DatasetUploadWorkflowTests(TestCase):
         self.assertEqual(
             SalesLine.objects.count(),
             0,
+        )
+
+    def test_upload_page_links_to_downloadable_csv_template(self):
+        response = self.client.get(
+            reverse("datasets:upload")
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Download CSV template",
+        )
+        self.assertContains(
+            response,
+            "core/files/vendilume-sales-template.csv",
         )
 
     def test_success_message_is_displayed(self):

@@ -12,7 +12,7 @@
   <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-Analytics-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL"></a>
   <a href="https://grafana.com/"><img src="https://img.shields.io/badge/Grafana-Dashboards-F46800?logo=grafana&logoColor=white" alt="Grafana"></a>
   <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/Google_Gemini-AI_Insights-8E75B2?logo=googlegemini&logoColor=white" alt="Google Gemini"></a>
-  <img src="https://img.shields.io/badge/Tests-136_passing-2EA44F?logo=pytest&logoColor=white" alt="136 tests passing">
+  <img src="https://img.shields.io/badge/Tests-138_passing-2EA44F?logo=pytest&logoColor=white" alt="138 tests passing">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Sephernie/Vendilume" alt="License"></a>
 </p>
 
@@ -27,7 +27,7 @@
 ---
 
 <p align="center">
-  <img src="docs/images/grafana-dashboard.png" alt="Vendilume sales dashboard">
+  <img src="docs/images/home-page.png" alt="Vendilume home page">
 </p>
 
 ## Why Vendilume?
@@ -62,12 +62,16 @@ Unlike a generic chatbot attached to raw data, Vendilume calculates authoritativ
 - Authenticated employee accounts with password-management and session-expiration behavior
 - Administrator, Sales Analyst, and Manager roles enforced in views and reflected in the interface
 - Administrator-managed employee accounts with no unrestricted public signup
-- **136 automated tests**, with external API behavior mocked during the test suite
+- Responsive Vendilume workspace with role-aware sidebar navigation and top-right account controls
+- Animated sales-intelligence home page, redesigned sign-in experience, and branded browser icon
+- Side-by-side Smart Insights and Grafana analytics using a shared purple-and-cyan visual system
+- Currency selection from a controlled list of supported three-letter codes, with a downloadable CSV template
+- **138 automated tests**, with external API behavior mocked during the test suite
 
 ## AI-Enhanced Business Insights
 
 <p align="center">
-  <img src="docs/images/analytics-ai-insights.png" alt="Vendilume AI-enhanced insights">
+  <img src="docs/images/analytics-page.png" alt="Vendilume analytics page">
 </p>
 
 Vendilume does not ask the AI model to calculate business KPIs. The application first builds a versioned summary from verified database queries, then removes internal dataset identifiers and customer identifiers before creating the external prompt.
@@ -177,8 +181,6 @@ Leave `GEMINI_API_KEY` blank to use deterministic Smart Insights without making 
 
 ### 3. Initialize Django
 
-### 3. Initialize Django
-
 After creating the configured PostgreSQL database and role, initialize the database and Vendilume access roles:
 
 ```bash
@@ -214,7 +216,7 @@ python manage.py test
 python manage.py makemigrations --check --dry-run
 ```
 
-The current suite contains **136 tests** covering CSV validation, transactional persistence, database constraints, authenticated views, role permissions, direct-URL restrictions, role-aware interface behavior, administrator account management, Grafana integration, filters, trusted analytics calculations, privacy sanitization, Gemini response validation, timeout behavior, and fallback paths. Tests do not make live Gemini requests.
+The current suite contains **138 tests** covering CSV validation, transactional persistence, database constraints, authenticated views, role permissions, direct-URL restrictions, role-aware interface behavior, administrator account management, the redesigned application shell and key pages, currency-choice validation, CSV-template access, Grafana integration, filters, trusted analytics calculations, privacy sanitization, Gemini response validation, timeout behavior, and fallback paths. Tests do not make live Gemini requests.
 
 ## Privacy, Reliability, and Limitations
 
@@ -236,8 +238,8 @@ Vendilume began with a twelve-phase roadmap. The original MVP was completed thro
 | 10 | Filters and Smart Insights | Complete |
 | 11 | AI-Enhanced Business Insights **[New]** | **Complete** |
 | 12 | User Accounts and Role-Based Access Control **[New]** | **Complete** |
-| 13 | Vendilume UI/UX Redesign **[New]** | **Next** |
-| 14 | Testing, Security and Final Polish *(original Phase 11)* | Planned |
+| 13 | Vendilume UI/UX Redesign **[New]** | **Complete** |
+| 14 | Testing, Security and Final Polish *(original Phase 11)* | **Next** |
 | 15 | Final Documentation and Presentation *(original Phase 12)* | Planned |
 
 The full plan and revision history are preserved in [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md).
@@ -248,7 +250,7 @@ The full plan and revision history are preserved in [`docs/PROJECT_PLAN.md`](doc
 Vendilume/
 ├── accounts/                       # Authentication, company roles, and user-management tests
 ├── config/                         # Django configuration
-├── core/                           # Shared pages and navigation
+├── core/                           # Shared pages, branded static assets, and navigation
 ├── datasets/
 │   ├── migrations/                # Database schema and analytics view
 │   ├── services/

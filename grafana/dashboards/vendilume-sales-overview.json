@@ -23,13 +23,13 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afxbrhoh4jvuoa"
+        "uid": "afxpbkfzeik1sf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
-            "mode": "thresholds"
+            "fixedColor": "#6edbe0",
+            "mode": "fixed"
           },
           "decimals": 2,
           "thresholds": {
@@ -52,7 +52,7 @@
       },
       "id": 1,
       "options": {
-        "colorMode": "none",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -74,7 +74,7 @@
           "dataset": "vendilume_db",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "afxbrhoh4jvuoa"
+            "uid": "afxpbkfzeik1sf"
           },
           "editorMode": "code",
           "format": "table",
@@ -106,13 +106,13 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afxbrhoh4jvuoa"
+        "uid": "afxpbkfzeik1sf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
-            "mode": "thresholds"
+            "fixedColor": "#ad8bff",
+            "mode": "fixed"
           },
           "thresholds": {
             "mode": "absolute",
@@ -133,7 +133,7 @@
       },
       "id": 2,
       "options": {
-        "colorMode": "none",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -155,7 +155,7 @@
           "dataset": "vendilume_db",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "afxbrhoh4jvuoa"
+            "uid": "afxpbkfzeik1sf"
           },
           "editorMode": "code",
           "format": "table",
@@ -187,13 +187,13 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afxbrhoh4jvuoa"
+        "uid": "afxpbkfzeik1sf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
-            "mode": "thresholds"
+            "fixedColor": "#ad8bff",
+            "mode": "fixed"
           },
           "thresholds": {
             "mode": "absolute",
@@ -214,7 +214,7 @@
       },
       "id": 3,
       "options": {
-        "colorMode": "none",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -236,7 +236,7 @@
           "dataset": "vendilume_db",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "afxbrhoh4jvuoa"
+            "uid": "afxpbkfzeik1sf"
           },
           "editorMode": "code",
           "format": "table",
@@ -268,13 +268,13 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afxbrhoh4jvuoa"
+        "uid": "afxpbkfzeik1sf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
-            "mode": "thresholds"
+            "fixedColor": "#6edbe0",
+            "mode": "fixed"
           },
           "decimals": 2,
           "thresholds": {
@@ -297,7 +297,7 @@
       },
       "id": 4,
       "options": {
-        "colorMode": "none",
+        "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -319,7 +319,7 @@
           "dataset": "vendilume_db",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "afxbrhoh4jvuoa"
+            "uid": "afxpbkfzeik1sf"
           },
           "editorMode": "code",
           "format": "table",
@@ -351,12 +351,13 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afxbrhoh4jvuoa"
+        "uid": "afxpbkfzeik1sf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#0eb6bd",
+            "mode": "fixed"
           },
           "custom": {
             "axisBorderShow": false,
@@ -435,7 +436,7 @@
           "dataset": "vendilume_db",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "afxbrhoh4jvuoa"
+            "uid": "afxpbkfzeik1sf"
           },
           "editorMode": "code",
           "format": "table",
@@ -467,12 +468,13 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afxbrhoh4jvuoa"
+        "uid": "afxpbkfzeik1sf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#7148bd",
+            "mode": "fixed"
           },
           "custom": {
             "axisBorderShow": false,
@@ -547,7 +549,7 @@
           "dataset": "vendilume_db",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "afxbrhoh4jvuoa"
+            "uid": "afxpbkfzeik1sf"
           },
           "editorMode": "code",
           "format": "table",
@@ -579,12 +581,13 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afxbrhoh4jvuoa"
+        "uid": "afxpbkfzeik1sf"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#7148bd",
+            "mode": "fixed"
           },
           "custom": {
             "axisBorderShow": false,
@@ -659,7 +662,7 @@
           "dataset": "vendilume_db",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "afxbrhoh4jvuoa"
+            "uid": "afxpbkfzeik1sf"
           },
           "editorMode": "code",
           "format": "table",
@@ -745,7 +748,6 @@
         "type": "query"
       },
       {
-        "allValue": "",
         "allowCustomValue": true,
         "current": {
           "text": "EUR",
@@ -1072,7 +1074,7 @@
   },
   "timezone": "browser",
   "title": "Vendilume Sales Overview",
-  "version": 23,
+  "version": 32,
   "uid": "ad6p79z",
   "id": 2004099088334848
 }

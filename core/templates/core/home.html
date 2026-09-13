@@ -1,114 +1,112 @@
 {% extends "base.html" %}
 
 {% block title %}Home | Vendilume{% endblock %}
+{% block body_class %}home-page{% endblock %}
+{% block main_class %}home-main{% endblock %}
 
 {% block meta_description %}
-Upload sales data, manage datasets, and explore business insights with Vendilume.
+Turn sales data into dashboards, verified insights, and practical business actions with Vendilume.
 {% endblock %}
 
-{% block page_header %}
-<section class="row align-items-center g-5 py-4 py-lg-5">
-    <div class="col-lg-7">
-        <span class="badge text-bg-info mb-3">
-            Sales Analytics Platform
-        </span>
+{% block content %}
+<section class="home-hero" aria-labelledby="home-heading">
+    <span class="visually-hidden">Welcome to Vendilume</span>
+    <div class="hero-grid">
+        <div class="hero-copy">
+            <span class="hero-eyebrow">Sales intelligence, illuminated</span>
+            <h1 id="home-heading">
+                See the signal inside your <span class="hero-gradient-word">sales data.</span>
+            </h1>
+            <p class="hero-lead">
+                Vendilume brings validated datasets, live visual analytics,
+                <span class="text-nowrap">Smart Insights</span>, and AI-supported recommendations into one clear
+                decision workspace.
+            </p>
+            <div class="hero-actions">
+                {% if user.is_authenticated %}
+                    {% if perms.datasets.view_dataset %}
+                        <a class="btn btn-cyan" href="{% url 'datasets:history' %}">Explore datasets</a>
+                    {% endif %}
+                    {% if perms.datasets.add_dataset %}
+                        <a class="btn btn-ghost" href="{% url 'datasets:upload' %}">Upload sales data</a>
+                    {% endif %}
+                {% else %}
+                    <a class="btn btn-cyan" href="{% url 'login' %}">Enter your workspace</a>
+                    <a class="btn btn-ghost" href="#capabilities">Discover Vendilume</a>
+                {% endif %}
+            </div>
+        </div>
 
-        <h1 class="display-4 fw-bold">
-            Welcome to Vendilume
-        </h1>
+        <div class="hero-visual" aria-label="Animated three-dimensional sales chart illustration">
+            <div class="chart-glow chart-glow-one" aria-hidden="true"></div>
+            <div class="chart-glow chart-glow-two" aria-hidden="true"></div>
 
-        <p class="lead text-body-secondary mt-3">
-            Turn your sales data into clear, useful business intelligence.
-        </p>
+            <div class="chart-stage" aria-hidden="true">
+                <div class="chart-plane"></div>
+                <div class="chart-bars">
+                    <span class="chart-bar" style="--bar-height: 38%; --bar-delay: -1.2s; --bar-color: #7148bd;"></span>
+                    <span class="chart-bar" style="--bar-height: 63%; --bar-delay: -2.7s; --bar-color: #5e43b7;"></span>
+                    <span class="chart-bar" style="--bar-height: 48%; --bar-delay: -.6s; --bar-color: #297e9f;"></span>
+                    <span class="chart-bar" style="--bar-height: 82%; --bar-delay: -3.5s; --bar-color: #13aab5;"></span>
+                    <span class="chart-bar" style="--bar-height: 70%; --bar-delay: -1.8s; --bar-color: #42cbd0;"></span>
+                    <span class="chart-bar" style="--bar-height: 94%; --bar-delay: -4.1s; --bar-color: #75e2e1;"></span>
+                </div>
+                <svg class="chart-line" viewBox="0 0 600 260" preserveAspectRatio="none">
+                    <polyline points="10,220 105,180 195,192 290,112 390,132 490,48 590,62"/>
+                </svg>
+            </div>
 
-        <p class="text-body-secondary">
-            Upload sales datasets, keep track of previous uploads, and explore
-            analytics designed to support better business decisions.
-        </p>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-                <h2 class="h4 card-title">
-                    How Vendilume works
-                </h2>
-
-                <ol class="mb-0 mt-3">
-                    <li class="mb-2">
-                        Upload a sales CSV file.
-                    </li>
-
-                    <li class="mb-2">
-                        Vendilume validates and processes the data.
-                    </li>
-
-                    <li>
-                        Explore the resulting analytics and insights.
-                    </li>
-                </ol>
+            <div class="floating-metric metric-one">
+                <span>Net revenue</span>
+                <strong>€84.2K <span class="metric-change">+18.4%</span></strong>
+            </div>
+            <div class="floating-metric metric-two">
+                <span>Profit margin</span>
+                <strong>36.8% <span class="metric-change">Healthy</span></strong>
             </div>
         </div>
     </div>
 </section>
-{% endblock %}
 
-{% block content %}
-<section class="pb-5" aria-labelledby="features-heading">
-    <div class="text-center mb-4">
-        <h2 id="features-heading" class="fw-bold">
-            A clearer view of your sales
-        </h2>
-
-        <p class="text-body-secondary">
-            Vendilume brings the core sales-analysis workflow into one place.
-        </p>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-md-4">
-            <article class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="h5 card-title">
-                        Upload Sales Data
-                    </h3>
-
-                    <p class="card-text text-body-secondary">
-                        Provide structured sales data through a simple CSV
-                        upload workflow.
-                    </p>
-                </div>
-            </article>
+<section class="home-features" id="capabilities" aria-labelledby="capabilities-heading">
+    <div class="home-features-inner">
+        <div class="section-heading">
+            <p class="page-eyebrow">One connected workflow</p>
+            <h2 id="capabilities-heading" class="fw-bold">From raw CSV to confident action.</h2>
+            <p class="lead text-body-secondary">
+                Every layer is designed to keep the numbers trustworthy and the next decision obvious.
+            </p>
         </div>
 
-        <div class="col-md-4">
-            <article class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="h5 card-title">
-                        Manage Datasets
-                    </h3>
-
-                    <p class="card-text text-body-secondary">
-                        Review uploaded datasets and inspect their important
-                        details from one location.
-                    </p>
-                </div>
-            </article>
-        </div>
-
-        <div class="col-md-4">
-            <article class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="h5 card-title">
-                        Explore Insights
-                    </h3>
-
-                    <p class="card-text text-body-secondary">
-                        Use dashboards and smart insights to understand sales
-                        performance more clearly.
-                    </p>
-                </div>
-            </article>
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3">
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">01</div>
+                    <h3>Validate the data</h3>
+                    <p>Upload structured sales records and catch important data problems before analysis.</p>
+                </article>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">02</div>
+                    <h3>Read the dashboard</h3>
+                    <p>Explore synchronized Grafana views for revenue, products, categories, and trends.</p>
+                </article>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">03</div>
+                    <h3>Understand the signal</h3>
+                    <p>Surface verified Smart Insights from the same trusted filters as the dashboard.</p>
+                </article>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">04</div>
+                    <h3>Choose what happens next</h3>
+                    <p>Generate privacy-safe AI analysis with findings, risks, and practical actions.</p>
+                </article>
+            </div>
         </div>
     </div>
 </section>

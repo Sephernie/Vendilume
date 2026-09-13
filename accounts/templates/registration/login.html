@@ -1,38 +1,65 @@
 {% extends "base.html" %}
 
 {% block title %}Sign In | Vendilume{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block main_class %}auth-main{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-5">
-        <section class="card border-0 shadow-sm">
-            <div class="card-body p-4 p-md-5">
-                <h1 class="h2 fw-bold mb-3">Sign in</h1>
+<section class="auth-shell" aria-labelledby="sign-in-heading">
+    <div class="auth-visual">
+        <div class="auth-visual-copy">
+            <span class="hero-eyebrow">Welcome back</span>
+            <h1>Turn today’s data into tomorrow’s direction.</h1>
+            <p>
+                Sign in to access your company’s shared datasets, live
+                dashboards, and decision-ready insights.
+            </p>
+        </div>
 
-                <p class="text-body-secondary">
-                    Use your company Vendilume account.
-                </p>
-
-                {% if form.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        Your username or password was incorrect.
-                    </div>
-                {% endif %}
-
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-
-                    {% if next %}
-                        <input type="hidden" name="next" value="{{ next }}">
-                    {% endif %}
-
-                    <button class="btn btn-primary w-100" type="submit">
-                        Sign in
-                    </button>
-                </form>
-            </div>
-        </section>
+        <div class="auth-mini-chart" aria-hidden="true">
+            <span class="auth-mini-bar" style="--height: 35%; --delay: -1s;"></span>
+            <span class="auth-mini-bar" style="--height: 58%; --delay: -2.2s;"></span>
+            <span class="auth-mini-bar" style="--height: 46%; --delay: -.4s;"></span>
+            <span class="auth-mini-bar" style="--height: 78%; --delay: -3.1s;"></span>
+            <span class="auth-mini-bar" style="--height: 66%; --delay: -1.7s;"></span>
+            <span class="auth-mini-bar" style="--height: 92%; --delay: -2.8s;"></span>
+        </div>
     </div>
-</div>
+
+    <div class="auth-panel">
+        <p class="page-eyebrow">Secure company access</p>
+        <h2 id="sign-in-heading" class="fw-bold mb-2">Sign in</h2>
+        <p class="text-body-secondary mb-4">Use your assigned Vendilume account.</p>
+
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                Your username or password was incorrect. Please try again.
+            </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            <p>
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+            </p>
+            <p>
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+            </p>
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <button class="btn btn-primary w-100 mt-2" type="submit">Sign in to Vendilume</button>
+        </form>
+
+        <div class="auth-note">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+            Accounts are created and managed by your administrator.
+        </div>
+    </div>
+</section>
 {% endblock %}

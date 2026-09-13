@@ -1,170 +1,132 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta
-        name="description"
-        content="{% block meta_description %}Sales analytics and business intelligence with Vendilume.{% endblock %}"
-    >
-
+    <meta name="description" content="{% block meta_description %}Sales analytics and business intelligence with Vendilume.{% endblock %}">
     <title>{% block title %}Vendilume{% endblock %}</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-        crossorigin="anonymous"
-    >
-
-    {% block extra_head %}
-    {% endblock %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'core/images/vendilume-mark.svg' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'core/css/vendilume.css' %}">
+    {% block extra_head %}{% endblock %}
 </head>
 
-<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
-    <a class="visually-hidden-focusable" href="#main-content">
-        Skip to main content
-    </a>
+<body class="vendilume-body {% block body_class %}{% endblock %}">
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
 
-    <header>
-        <nav
-            class="navbar navbar-expand-lg bg-dark"
-            data-bs-theme="dark"
-            aria-label="Main navigation"
-        >
-            <div class="container">
-                <a class="navbar-brand fw-semibold" href="{% url 'home' %}">
-                    Vendilume
+    <div class="app-shell">
+        <aside class="app-sidebar" id="appSidebar" aria-label="Main navigation">
+            <div class="sidebar-brand-wrap">
+                <a class="sidebar-brand" href="{% url 'home' %}" aria-label="Vendilume home">
+                    <img src="{% static 'core/images/vendilume-logo.png' %}" alt="Vendilume" class="sidebar-logo">
+                </a>
+                <button class="sidebar-close d-lg-none" type="button" data-sidebar-close aria-label="Close navigation">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <p class="sidebar-label">Workspace</p>
+                <a class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5M9.5 20v-6h5v6"/></svg>
+                    <span>Home</span>
                 </a>
 
-                <button
-                    class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mainNavbar"
-                    aria-controls="mainNavbar"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                >
-                    <span class="navbar-toggler-icon"></span>
+                {% if user.is_authenticated and perms.datasets.view_dataset %}
+                    <a class="sidebar-link {% if request.resolver_match.namespace == 'datasets' and request.resolver_match.url_name != 'upload' %}active{% endif %}" href="{% url 'datasets:history' %}">
+                        <svg aria-hidden="true" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
+                        <span>Datasets</span>
+                    </a>
+                {% endif %}
+
+                {% if user.is_authenticated and perms.datasets.add_dataset %}
+                    <a class="sidebar-link {% if request.resolver_match.namespace == 'datasets' and request.resolver_match.url_name == 'upload' %}active{% endif %}" href="{% url 'datasets:upload' %}">
+                        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 16V4M7.5 8.5L12 4l4.5 4.5"/><path d="M5 14v5h14v-5"/></svg>
+                        <span>Upload Dataset</span>
+                    </a>
+                {% endif %}
+
+                {% if user.is_authenticated and user.is_staff and perms.auth.view_user %}
+                    <p class="sidebar-label sidebar-label-spaced">Administration</p>
+                    <a class="sidebar-link" href="{% url 'admin:auth_user_changelist' %}">
+                        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3.5 20c.3-4 2.1-6 5.5-6 2.2 0 3.8.8 4.7 2.4"/><circle cx="17" cy="15" r="2.5"/><path d="M17 11.3V10M17 20v-1.3M13.3 15H12M22 15h-1.3M14.4 12.4l-.9-.9M20.5 18.5l-.9-.9M19.6 12.4l.9-.9M13.5 18.5l.9-.9"/></svg>
+                        <span>Manage Users</span>
+                    </a>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-orbit" aria-hidden="true"></div>
+                <p>Clarity for every sales decision.</p>
+            </div>
+        </aside>
+
+        <div class="sidebar-backdrop" data-sidebar-close></div>
+
+        <div class="app-stage">
+            <header class="app-topbar">
+                <button class="mobile-menu-button d-lg-none" type="button" data-sidebar-open aria-controls="appSidebar" aria-expanded="false" aria-label="Open navigation">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
                 </button>
 
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav ms-auto align-items-lg-center">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home' %}">
-                                Home
-                            </a>
-                        </li>
+                <div class="topbar-context d-none d-md-flex">
+                    <span class="topbar-kicker">Vendilume workspace</span>
+                    {% if user.is_authenticated %}
+                        <span class="topbar-status"><span class="status-dot" aria-hidden="true"></span>Analytics ready</span>
+                    {% endif %}
+                </div>
 
-                        {% if user.is_authenticated %}
-                            {% if perms.datasets.add_dataset %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'datasets:upload' %}">
-                                        Upload Dataset
-                                    </a>
-                                </li>
-                            {% endif %}
-
-                            {% if perms.datasets.view_dataset %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'datasets:history' %}">
-                                        Dataset History
-                                    </a>
-                                </li>
-                            {% endif %}
-
-                            {% if user.is_staff and perms.auth.view_user %}
-                                <li class="nav-item">
-                                    <a
-                                        class="nav-link"
-                                        href="{% url 'admin:auth_user_changelist' %}"
-                                    >
-                                        Manage Users
-                                    </a>
-                                </li>
-                            {% endif %}
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'password_change' %}">
-                                    Change Password
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <span class="nav-link disabled">
-                                    {{ user.get_full_name|default:user.username }}
-                                </span>
-                            </li>
-
-                            <li class="nav-item">
+                <div class="topbar-account">
+                    {% if user.is_authenticated %}
+                        <div class="account-copy">
+                            <strong>{{ user.get_full_name|default:user.username }}</strong>
+                            <span>Signed in</span>
+                        </div>
+                        <div class="account-avatar" aria-hidden="true">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</div>
+                        <div class="dropdown">
+                            <button class="account-menu-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Open account menu">
+                                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end account-menu shadow-lg">
+                                <a class="dropdown-item" href="{% url 'password_change' %}">Change password</a>
+                                <div class="dropdown-divider"></div>
                                 <form method="post" action="{% url 'logout' %}">
                                     {% csrf_token %}
-                                    <button
-                                        class="nav-link btn btn-link border-0"
-                                        type="submit"
-                                    >
-                                        Sign out
-                                    </button>
+                                    <button class="dropdown-item text-danger" type="submit">Sign out</button>
                                 </form>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'login' %}">
-                                    Sign in
-                                </a>
-                            </li>
-                        {% endif %}
-                    </ul>
+                            </div>
+                        </div>
+                    {% elif request.resolver_match.url_name != 'login' %}
+                        <a class="btn btn-primary btn-sm px-3 topbar-signin" href="{% url 'login' %}">Sign in</a>
+                    {% endif %}
                 </div>
-            </div>
-        </nav>
-    </header>
+            </header>
 
-    <main id="main-content" class="container flex-grow-1 py-5">
-        {% if messages %}
-            <div aria-label="Notifications">
-                {% for message in messages %}
-                    <div
-                        class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show"
-                        role="alert"
-                    >
-                        {{ message }}
-
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"
-                        ></button>
+            <main id="main-content" class="app-main {% block main_class %}{% endblock %}">
+                {% if messages %}
+                    <div class="notification-stack" aria-label="Notifications">
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% block page_header %}
-        {% endblock %}
+                {% endif %}
+                {% block page_header %}{% endblock %}
+                {% block content %}{% endblock %}
+            </main>
 
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <footer class="border-top bg-body py-3">
-        <div class="container">
-            <p class="mb-0 text-body-secondary">
-                &copy; {% now "Y" %} Vendilume.
-                Sales analytics made clearer.
-            </p>
+            <footer class="app-footer">
+                <span>&copy; {% now "Y" %} Vendilume</span>
+                <span>Sales analytics made clearer.</span>
+            </footer>
         </div>
-    </footer>
+    </div>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"
-    ></script>
-
-    {% block extra_scripts %}
-    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="{% static 'core/js/vendilume.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

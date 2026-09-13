@@ -35,6 +35,9 @@ class AuthenticationViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "registration/login.html")
         self.assertContains(response, "Sign in")
+        self.assertContains(response, "Turn today’s data")
+        self.assertNotContains(response, "topbar-signin")
+        self.assertNotContains(response, "Analytics ready")
 
     def test_valid_login_redirects_to_dataset_history(self):
         response = self.client.post(

@@ -550,6 +550,8 @@ Automated tests cover authentication, logout, password changes, role creation, r
 
 > **Roadmap status:** New phase introduced after completion of the original Phase 10 MVP.
 
+> **Implementation status:** Completed on September 13, 2026.
+
 ### Goal
 
 Create a distinctive, consistent, and professional Vendilume interface across
@@ -566,6 +568,46 @@ the complete authenticated workflow.
 * Review responsive behavior across desktop and smaller displays.
 * Improve keyboard navigation, focus visibility, contrast, labels, and other accessibility fundamentals.
 * Preserve existing application behavior while templates and styles are changed.
+
+### Implementation Summary
+
+Phase 13 introduced a shared Vendilume application shell built around the
+brand's dark-purple and cyan palette. A persistent desktop sidebar now carries
+the Vendilume logo, icon-based navigation, active-page styling, and
+permission-aware links. On smaller screens, the sidebar becomes an accessible
+menu that can be closed from its control, backdrop, or the Escape key. The
+signed-in user's name, avatar, password action, and sign-out action are grouped
+in the top-right account menu. Anonymous pages no longer claim that analytics
+are ready, and the login page does not repeat its sign-in action in the top bar.
+
+The home page now combines product information with a softly blurred,
+animated three-dimensional chart illustration and respects reduced-motion
+preferences. The sign-in page uses the same visual language and presents
+company access in a clearer split layout. Shared styling covers typography,
+spacing, cards, tables, forms, buttons, alerts, empty states, focus treatment,
+and responsive layouts across the existing dataset and account workflows. An
+icon-only Vendilume SVG is also used as the browser favicon.
+
+Dataset upload now presents a controlled currency dropdown containing
+supported three-letter currency codes and readable currency names. A
+downloadable, ready-to-fill CSV template demonstrates every supported column
+and includes a valid example sales row. The
+analytics workspace places a narrow Smart Insights and AI-insights column to
+the left of the wider embedded Grafana dashboard on desktop, then stacks the
+sections on smaller displays. The version-controlled Grafana dashboard was
+updated from its previous green presentation to fixed Vendilume cyan and
+purple series and value colors.
+
+### Verification
+
+The final dashboard export was parsed successfully as JSON. Django's system
+check reported no issues, the complete suite of **138 automated tests** passed,
+and `makemigrations --check --dry-run` reported no model changes. Tests added
+for this phase cover the redesigned home and sign-in content, anonymous
+top-bar behavior, favicon integration, the controlled currency selector, and
+the downloadable CSV template link.
+`git diff --check` reported no whitespace errors; its remaining messages were
+Windows CRLF-to-LF normalization warnings only.
 
 ### Completion
 

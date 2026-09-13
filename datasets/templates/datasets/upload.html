@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Upload Dataset | Vendilume{% endblock %}
 
@@ -8,6 +9,7 @@ Upload a sales CSV dataset to Vendilume.
 
 {% block page_header %}
 <div class="mb-4">
+    <p class="page-eyebrow">Data workspace</p>
     <h1 class="fw-bold">Upload Sales Dataset</h1>
 
     <p class="lead text-body-secondary">
@@ -19,9 +21,12 @@ Upload a sales CSV dataset to Vendilume.
 {% block content %}
 <div class="row g-4">
     <div class="col-lg-8">
-        <section class="card border-0 shadow-sm">
+        <section class="card border-0 shadow-sm upload-drop-card">
             <div class="card-body p-4">
-                <h2 class="h4 mb-3">Choose a CSV file</h2>
+                <h2 class="h4 mb-2">Add a new dataset</h2>
+                <p class="text-body-secondary mb-4">
+                    Name the dataset, choose its currency, and select the CSV file to process.
+                </p>
 
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
@@ -63,7 +68,7 @@ Upload a sales CSV dataset to Vendilume.
                     {% endfor %}
 
                     <button
-                        class="btn btn-primary"
+                        class="btn btn-primary px-4"
                         type="submit"
                     >
                         Upload Dataset
@@ -76,6 +81,7 @@ Upload a sales CSV dataset to Vendilume.
     <div class="col-lg-4">
         <aside class="card border-0 shadow-sm">
             <div class="card-body p-4">
+                <p class="page-eyebrow">Quick checklist</p>
                 <h2 class="h5">Before uploading</h2>
 
                 <ul class="mb-0">
@@ -87,10 +93,31 @@ Upload a sales CSV dataset to Vendilume.
                         Include all required sales columns.
                     </li>
 
+                    <li class="mb-2">
+                        Select the currency used by all monetary fields.
+                    </li>
+
                     <li>
                         Keep column names consistent with the data specification.
                     </li>
                 </ul>
+
+                <div class="csv-template-panel">
+                    <p class="page-eyebrow mb-1">CSV format example</p>
+                    <h3 class="h6 fw-bold">Start with the correct columns</h3>
+                    <p class="small mb-0">
+                        Download a ready-to-fill CSV containing every supported
+                        column and one example sales row.
+                    </p>
+                    <code class="csv-template-columns">order_id, order_date, product_name, category, quantity, unit_price</code>
+                    <a
+                        class="btn btn-outline-primary btn-sm"
+                        href="{% static 'core/files/vendilume-sales-template.csv' %}"
+                        download="vendilume-sales-template.csv"
+                    >
+                        Download CSV template
+                    </a>
+                </div>
             </div>
         </aside>
     </div>
