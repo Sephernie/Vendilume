@@ -15,7 +15,7 @@ def _format_decimal(value):
     if value is None:
         return None
 
-    return f"{value:.2f}"
+    return f"{value:,.2f}"
 
 
 def _build_ranking(sales_lines, field_name, ordering):

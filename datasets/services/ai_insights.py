@@ -205,6 +205,9 @@ of business facts.
 Follow these rules:
 - Never recalculate, replace, or contradict Vendilume's metrics.
 - Preserve monetary values and their stated currency.
+- Use comma thousands separators for monetary values and
+  quantities with four or more integer digits.
+- Keep calendar years and ISO dates unchanged.
 - Do not invent missing products, customers, causes, or trends.
 - Do not claim that correlation proves causation.
 - Clearly distinguish observed facts from recommendations.

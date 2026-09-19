@@ -84,6 +84,49 @@ class AuthenticationViewTests(TestCase):
         self.assertRedirects(response, reverse("login"))
         self.assertNotIn(SESSION_KEY, self.client.session)
 
+    def test_invalid_password_does_not_authenticate_user(self):
+        response = self.client.post(
+            reverse("login"),
+            {
+                "username": self.user.username,
+                "password": "IncorrectPassword!",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(SESSION_KEY, self.client.session)
+
+    def test_inactive_user_cannot_log_in(self):
+        self.user.is_active = False
+        self.user.save(update_fields=["is_active"])
+
+        response = self.client.post(
+            reverse("login"),
+            {
+                "username": self.user.username,
+                "password": self.password,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(SESSION_KEY, self.client.session)
+
+    def test_logout_rejects_get_requests(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("logout"))
+
+        self.assertEqual(response.status_code, 405)
+        self.assertIn(SESSION_KEY, self.client.session)
+
+    def test_session_expires_when_browser_closes(self):
+        self.client.force_login(self.user)
+
+        session = self.client.session
+
+        self.assertTrue(session.get_expire_at_browser_close())
+        self.assertEqual(session.get_expiry_age(), 15 * 60)
+
 class RoleSetupCommandTests(TestCase):
     def test_setup_roles_creates_expected_permissions(self):
         output = StringIO()

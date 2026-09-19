@@ -1,5 +1,10 @@
 import json
-from datetime import date, timedelta
+from datetime import (
+    date,
+    datetime,
+    timedelta,
+    timezone as datetime_timezone,
+)
 from decimal import Decimal
 from io import StringIO
 
@@ -1103,6 +1108,38 @@ class CsvStructureValidationTests(SimpleTestCase):
             result.source_columns,
         )
 
+    def test_empty_discount_value_is_reported_as_incomplete(
+        self,
+    ):
+        csv_path = self.write_csv(
+            "order_id,order_date,product_name,category,"
+            "quantity,unit_price,discount_percent\n"
+            "ORDER-001,2026-01-10,Desk Lamp,Home,"
+            "2,10.00,\n"
+        )
+
+        result = read_and_validate_csv(csv_path)
+
+        warning = next(
+            warning
+            for warning in result.warnings
+            if warning.code
+            == "INCOMPLETE_OPTIONAL_DATA"
+        )
+
+        self.assertEqual(
+            warning.details["empty_value_rows"][
+                "discount_percent"
+            ],
+            [2],
+        )
+        self.assertEqual(
+            result.optional_data_statuses[
+                "discount_percent"
+            ],
+            "not_provided",
+        )
+
 
 class DatasetImportServiceTests(TestCase):
     def setUp(self):
@@ -1328,6 +1365,42 @@ class DatasetImportServiceTests(TestCase):
             SalesLine.objects.count(),
             0,
         )
+
+    def test_optional_data_statuses_use_actual_values(
+        self,
+    ):
+        result = self.process_csv(
+            "order_id,order_date,product_name,category,"
+            "quantity,unit_price,product_id,customer_id,"
+            "region,sales_channel,discount_percent\n"
+            "ORDER-001,2026-01-10,Desk Lamp,Home,"
+            "2,10.00,PRODUCT-001,CUSTOMER-001,,Online,0\n"
+            "ORDER-002,2026-01-11,Chair,Furniture,"
+            "1,50.00,PRODUCT-002,,,Retail,0\n"
+        )
+
+        dataset = persist_processed_dataset(
+            result=result,
+            name="Availability Test",
+            original_filename="availability.csv",
+            currency="IRR",
+        )
+
+        self.assertEqual(
+            dataset.optional_data_statuses,
+            {
+                "product_id": "Available",
+                "customer_id": "Partial",
+                "region": "Not provided",
+                "sales_channel": "Available",
+                "discount_percent": "Available",
+                "unit_cost": "Not provided",
+            },
+        )
+        self.assertTrue(dataset.has_customer_id)
+        self.assertFalse(dataset.has_region)
+        self.assertTrue(dataset.has_discount)
+        self.assertFalse(dataset.has_unit_cost)
 
 
 class DatasetUploadFormTests(TestCase):
@@ -2003,6 +2076,26 @@ class AnalyticsFilterFormTests(TestCase):
         self.assertIn("end_date", form.errors)
         self.assertIn("product", form.errors)
 
+    def test_start_date_cannot_be_after_end_date(self):
+        form = AnalyticsFilterForm(
+            data={
+                "start_date": "2026-01-20",
+                "end_date": "2026-01-10",
+                "product": "",
+                "category": "",
+                "region": "",
+                "sales_channel": "",
+                "customer": "",
+            },
+            dataset=self.dataset,
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "The end date must be on or after the start date.",
+            form.errors["end_date"],
+        )
+
 
 class AIInsightResponseValidationTests(SimpleTestCase):
     def valid_payload(self):
@@ -2158,6 +2251,72 @@ class AIInsightResponseValidationTests(SimpleTestCase):
             system_prompt,
         )
 
+    def test_prompt_preserves_grouped_large_numbers(self):
+        summary = self.valid_summary()
+        summary["metrics"]["net_revenue"] = (
+            "125,000,000.00"
+        )
+        summary["dataset"]["currency"] = "IRR"
+
+        messages = build_ai_insight_messages(
+            summary
+        )
+
+        self.assertIn(
+            '"net_revenue": "125,000,000.00"',
+            messages[1]["content"],
+        )
+        self.assertIn(
+            "comma thousands separators",
+            messages[0]["content"],
+        )
+        self.assertIn(
+            '"currency": "IRR"',
+            messages[1]["content"],
+        )
+
+    def test_response_rejects_invalid_types_and_limits(self):
+        invalid_changes = (
+            {
+                "executive_summary": 123,
+            },
+            {
+                "executive_summary": "x" * 1001,
+            },
+            {
+                "important_findings": "Not a list",
+            },
+            {
+                "important_findings": [],
+            },
+        )
+
+        for changes in invalid_changes:
+            with self.subTest(changes=changes):
+                payload = self.valid_payload()
+                payload.update(changes)
+
+                with self.assertRaises(
+                    AIInsightValidationError
+                ):
+                    validate_ai_insight_response(payload)
+
+    def test_prompt_rejects_invalid_summary_contract(self):
+        invalid_summaries = (
+            [],
+            {
+                "schema_version": 2,
+                "has_data": True,
+            },
+        )
+
+        for summary in invalid_summaries:
+            with self.subTest(summary=summary):
+                with self.assertRaises(
+                    AIInsightRequestError
+                ):
+                    build_ai_insight_messages(summary)
+
 
 class GeminiInsightProviderTests(SimpleTestCase):
     def valid_payload(self):
@@ -2268,6 +2427,45 @@ class GeminiInsightProviderTests(SimpleTestCase):
         self.assertEqual(
             str(context.exception),
             "The Gemini request failed.",
+        )
+
+    def test_empty_response_raises_provider_error(self):
+        client = Mock()
+        client.models.generate_content.return_value.text = "   "
+
+        with self.assertRaises(
+            GeminiInsightProviderError
+        ) as context:
+            generate_gemini_insights(
+                self.valid_summary(),
+                client=client,
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "Gemini returned an empty response.",
+        )
+
+    def test_invalid_response_shape_raises_provider_error(self):
+        client = Mock()
+        payload = self.valid_payload()
+        payload["unexpected_field"] = "Unexpected"
+
+        client.models.generate_content.return_value.text = (
+            json.dumps(payload)
+        )
+
+        with self.assertRaises(
+            GeminiInsightProviderError
+        ) as context:
+            generate_gemini_insights(
+                self.valid_summary(),
+                client=client,
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "Gemini returned an invalid insight response.",
         )
 
 
@@ -3429,6 +3627,11 @@ class DatasetViewTests(TestCase):
             summary
         )
 
+        self.assertNotContains(
+            response,
+            "Smart insights",
+        )
+
         self.assertContains(
             response,
             "AI-enhanced insights",
@@ -3440,6 +3643,179 @@ class DatasetViewTests(TestCase):
         self.assertContains(
             response,
             "Review furniture inventory.",
+        )
+
+    def test_detail_displays_uploaded_time_in_local_timezone(
+        self,
+    ):
+        Dataset.objects.filter(
+            pk=self.dataset.pk
+        ).update(
+            uploaded_at=datetime(
+                2026,
+                9,
+                13,
+                18,
+                3,
+                tzinfo=datetime_timezone.utc,
+            )
+        )
+
+        response = self.client.get(
+            reverse(
+                "datasets:detail",
+                args=[self.dataset.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "2026-09-13 21:33",
+        )
+
+    @override_settings(
+        GRAFANA_BASE_URL="http://grafana.test",
+        GRAFANA_DASHBOARD_UID="test-dashboard-uid",
+    )
+    @patch("datasets.views.urlopen")
+    def test_analytics_passes_dataset_currency_to_grafana(
+        self,
+        mock_urlopen,
+    ):
+        mock_urlopen.return_value.__enter__.return_value.status = 200
+
+        self.dataset.currency = "IRR"
+        self.dataset.save(
+            update_fields=["currency"]
+        )
+
+        response = self.client.get(
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "var-currency=IRR",
+            response.context["dashboard_url"],
+        )
+
+    @patch(
+        "datasets.views.generate_business_insights"
+    )
+    @patch(
+        "datasets.views.build_analytics_summary"
+    )
+    @patch("datasets.views.urlopen")
+    def test_failed_ai_request_keeps_smart_insights(
+        self,
+        mock_urlopen,
+        mock_build_summary,
+        mock_generate_business_insights,
+    ):
+        mock_urlopen.side_effect = URLError(
+            "Grafana unavailable"
+        )
+
+        summary = {
+            "has_data": True,
+            "rule_based_insights": [
+                "Verified Smart Insight.",
+            ],
+        }
+
+        mock_build_summary.return_value = summary
+        mock_generate_business_insights.return_value = {
+            "source": "rule_based",
+            "notice": (
+                "AI-enhanced insights are temporarily "
+                "unavailable. Showing verified Smart "
+                "Insights instead."
+            ),
+            "rule_based_insights": [
+                "Verified Smart Insight.",
+            ],
+            "ai_insights": None,
+        }
+
+        response = self.client.get(
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            ),
+            data={
+                "start_date": "2026-01-01",
+                "end_date": "2026-01-31",
+                "generate_ai": "1",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Smart insights",
+        )
+        self.assertContains(
+            response,
+            "Verified Smart Insight.",
+        )
+        self.assertContains(
+            response,
+            "temporarily unavailable",
+        )
+        self.assertNotContains(
+            response,
+            "<h2>AI-enhanced insights</h2>",
+            html=True,
+        )
+
+    @patch("datasets.views.urlopen")
+    def test_analytics_handles_unavailable_optional_filters(
+        self,
+        mock_urlopen,
+    ):
+        mock_urlopen.side_effect = URLError(
+            "Grafana unavailable"
+        )
+
+        self.dataset.has_customer_id = False
+        self.dataset.has_region = False
+        self.dataset.has_sales_channel = False
+        self.dataset.save(
+            update_fields=[
+                "has_customer_id",
+                "has_region",
+                "has_sales_channel",
+            ]
+        )
+
+        response = self.client.get(
+            reverse(
+                "datasets:analytics",
+                args=[self.dataset.pk],
+            ),
+            data={
+                "start_date": "2026-01-01",
+                "end_date": "2026-01-31",
+                "generate_ai": "1",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(
+            "customer",
+            response.context["filter_form"].fields,
+        )
+        self.assertNotIn(
+            "region",
+            response.context["filter_form"].fields,
+        )
+        self.assertNotIn(
+            "sales_channel",
+            response.context["filter_form"].fields,
         )
 
 

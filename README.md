@@ -12,7 +12,7 @@
   <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-Analytics-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL"></a>
   <a href="https://grafana.com/"><img src="https://img.shields.io/badge/Grafana-Dashboards-F46800?logo=grafana&logoColor=white" alt="Grafana"></a>
   <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/Google_Gemini-AI_Insights-8E75B2?logo=googlegemini&logoColor=white" alt="Google Gemini"></a>
-  <img src="https://img.shields.io/badge/Tests-138_passing-2EA44F?logo=pytest&logoColor=white" alt="138 tests passing">
+  <img src="https://img.shields.io/badge/Tests-154_passing-2EA44F?logo=pytest&logoColor=white" alt="154 tests passing">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Sephernie/Vendilume" alt="License"></a>
 </p>
 
@@ -64,9 +64,9 @@ Unlike a generic chatbot attached to raw data, Vendilume calculates authoritativ
 - Administrator-managed employee accounts with no unrestricted public signup
 - Responsive Vendilume workspace with role-aware sidebar navigation and top-right account controls
 - Animated sales-intelligence home page, redesigned sign-in experience, and branded browser icon
-- Side-by-side Smart Insights and Grafana analytics using a shared purple-and-cyan visual system
+- Full-width Smart or AI-enhanced insights followed by the embedded Grafana dashboard
 - Currency selection from a controlled list of supported three-letter codes, with a downloadable CSV template
-- **138 automated tests**, with external API behavior mocked during the test suite
+- **154 automated tests**, with external API behavior mocked during the test suite
 
 ## AI-Enhanced Business Insights
 
@@ -209,6 +209,8 @@ Import [`grafana/dashboards/vendilume-sales-overview.json`](grafana/dashboards/v
 
 ## Testing
 
+The current suite contains **154 tests** with **96% application-code coverage**.
+
 Run the complete test suite locally:
 
 ```bash
@@ -216,7 +218,7 @@ python manage.py test
 python manage.py makemigrations --check --dry-run
 ```
 
-The current suite contains **138 tests** covering CSV validation, transactional persistence, database constraints, authenticated views, role permissions, direct-URL restrictions, role-aware interface behavior, administrator account management, the redesigned application shell and key pages, currency-choice validation, CSV-template access, Grafana integration, filters, trusted analytics calculations, privacy sanitization, Gemini response validation, timeout behavior, and fallback paths. Tests do not make live Gemini requests.
+The current suite contains **154 tests** covering CSV validation, transactional persistence, database constraints, authenticated views, role permissions, direct-URL restrictions, role-aware interface behavior, administrator account management, the redesigned application shell and key pages, currency-choice validation, CSV-template access, Grafana integration, filters, trusted analytics calculations, privacy sanitization, Gemini response validation, timeout behavior, and fallback paths. Tests do not make live Gemini requests.
 
 ## Privacy, Reliability, and Limitations
 
@@ -239,8 +241,8 @@ Vendilume began with a twelve-phase roadmap. The original MVP was completed thro
 | 11 | AI-Enhanced Business Insights **[New]** | **Complete** |
 | 12 | User Accounts and Role-Based Access Control **[New]** | **Complete** |
 | 13 | Vendilume UI/UX Redesign **[New]** | **Complete** |
-| 14 | Testing, Security and Final Polish *(original Phase 11)* | **Next** |
-| 15 | Final Documentation and Presentation *(original Phase 12)* | Planned |
+| 14 | Testing, Security and Final Polish *(original Phase 11)* | **Complete** |
+| 15 | Final Documentation and Presentation *(original Phase 12)* | **Next** |
 
 The full plan and revision history are preserved in [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md).
 

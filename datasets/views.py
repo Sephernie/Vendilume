@@ -54,6 +54,9 @@ def dataset_detail(request, pk):
 
     context = {
         "dataset": dataset,
+        "available_data": (
+            dataset.optional_data_statuses
+        ),
     }
 
     return render(request, "datasets/detail.html", context)
@@ -185,21 +188,36 @@ def dataset_analytics(request, pk):
             selected_end_date = filter_form.cleaned_data[
                 "end_date"
             ]
-            selected_product = filter_form.cleaned_data[
-                "product"
-            ]
-            selected_category = filter_form.cleaned_data[
-                "category"
-            ]
-            selected_region = filter_form.cleaned_data[
-                "region"
-            ]
-            selected_sales_channel = filter_form.cleaned_data[
-                "sales_channel"
-            ]
-            selected_customer = filter_form.cleaned_data[
-                "customer"
-            ]
+            selected_product = (
+                filter_form.cleaned_data.get(
+                    "product",
+                    "",
+                )
+            )
+            selected_category = (
+                filter_form.cleaned_data.get(
+                    "category",
+                    "",
+                )
+            )
+            selected_region = (
+                filter_form.cleaned_data.get(
+                    "region",
+                    "",
+                )
+            )
+            selected_sales_channel = (
+                filter_form.cleaned_data.get(
+                    "sales_channel",
+                    "",
+                )
+            )
+            selected_customer = (
+                filter_form.cleaned_data.get(
+                    "customer",
+                    "",
+                )
+            )
 
         if (
             filters_are_valid
@@ -243,6 +261,7 @@ def dataset_analytics(request, pk):
         if grafana_available:
             parameters = {
                 "var-dataset_id": dataset.pk,
+                "var-currency": dataset.currency,
                 "var-product": selected_product or "$__all",
                 "var-category": selected_category or "$__all",
                 "var-region": selected_region or "$__all",

@@ -99,66 +99,86 @@
 
     <div class="analytics-workspace">
         <aside class="insights-column" aria-label="Sales insights">
-            <section class="insight-card">
-                <div class="insight-card-header">
-                    <h2>Smart insights</h2>
-                    <span class="badge text-bg-info">Verified</span>
-                </div>
-                <div class="insight-card-body">
-                    {% if insights %}
-                        <ul class="insight-list">
-                            {% for insight in insights %}<li>{{ insight }}</li>{% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted mb-0">No insights are currently available.</p>
-                    {% endif %}
-                </div>
-            </section>
-
-            {% if business_insight_result %}
+            {% if business_insight_result.ai_insights %}
                 <section class="insight-card">
                     <div class="insight-card-header">
                         <h2>AI-enhanced insights</h2>
-                        {% if business_insight_result.source == "gemini" %}
-                            <span class="badge text-bg-primary">Gemini</span>
-                        {% else %}
-                            <span class="badge text-bg-secondary">Fallback</span>
+                        <span class="badge text-bg-primary">Gemini</span>
+                    </div>
+
+                    <div class="insight-card-body">
+                        <h3 class="ai-section-title">
+                            Executive summary
+                        </h3>
+                        <p class="ai-copy">
+                            {{ business_insight_result.ai_insights.executive_summary }}
+                        </p>
+
+                        <h3 class="ai-section-title">
+                            Important findings
+                        </h3>
+                        <ul class="ai-list">
+                            {% for finding in business_insight_result.ai_insights.important_findings %}
+                                <li>{{ finding }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if business_insight_result.ai_insights.risks_and_warnings %}
+                            <h3 class="ai-section-title">
+                                Risks and warnings
+                            </h3>
+                            <ul class="ai-list">
+                                {% for risk in business_insight_result.ai_insights.risks_and_warnings %}
+                                    <li>{{ risk }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        <h3 class="ai-section-title">
+                            Recommended actions
+                        </h3>
+                        <ul class="ai-list">
+                            {% for action in business_insight_result.ai_insights.recommended_actions %}
+                                <li>{{ action }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if business_insight_result.ai_insights.areas_for_investigation %}
+                            <h3 class="ai-section-title">
+                                Areas for investigation
+                            </h3>
+                            <ul class="ai-list mb-0">
+                                {% for area in business_insight_result.ai_insights.areas_for_investigation %}
+                                    <li>{{ area }}</li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
                     </div>
+                </section>
+            {% else %}
+                <section class="insight-card">
+                    <div class="insight-card-header">
+                        <h2>Smart insights</h2>
+                        <span class="badge text-bg-info">Verified</span>
+                    </div>
+
                     <div class="insight-card-body">
                         {% if business_insight_result.notice %}
-                            <div class="alert alert-warning small" role="alert">{{ business_insight_result.notice }}</div>
+                            <div class="alert alert-warning small" role="alert">
+                                {{ business_insight_result.notice }}
+                            </div>
                         {% endif %}
 
-                        {% if business_insight_result.ai_insights %}
-                            <h3 class="ai-section-title">Executive summary</h3>
-                            <p class="ai-copy">{{ business_insight_result.ai_insights.executive_summary }}</p>
-
-                            <h3 class="ai-section-title">Important findings</h3>
-                            <ul class="ai-list">
-                                {% for finding in business_insight_result.ai_insights.important_findings %}<li>{{ finding }}</li>{% endfor %}
+                        {% if insights %}
+                            <ul class="insight-list">
+                                {% for insight in insights %}
+                                    <li>{{ insight }}</li>
+                                {% endfor %}
                             </ul>
-
-                            {% if business_insight_result.ai_insights.risks_and_warnings %}
-                                <h3 class="ai-section-title">Risks and warnings</h3>
-                                <ul class="ai-list">
-                                    {% for risk in business_insight_result.ai_insights.risks_and_warnings %}<li>{{ risk }}</li>{% endfor %}
-                                </ul>
-                            {% endif %}
-
-                            <h3 class="ai-section-title">Recommended actions</h3>
-                            <ul class="ai-list">
-                                {% for action in business_insight_result.ai_insights.recommended_actions %}<li>{{ action }}</li>{% endfor %}
-                            </ul>
-
-                            {% if business_insight_result.ai_insights.areas_for_investigation %}
-                                <h3 class="ai-section-title">Areas for investigation</h3>
-                                <ul class="ai-list mb-0">
-                                    {% for area in business_insight_result.ai_insights.areas_for_investigation %}<li>{{ area }}</li>{% endfor %}
-                                </ul>
-                            {% endif %}
                         {% else %}
-                            <p class="text-muted mb-0">Verified Smart Insights remain available above.</p>
+                            <p class="text-muted mb-0">
+                                No insights are currently available.
+                            </p>
                         {% endif %}
                     </div>
                 </section>

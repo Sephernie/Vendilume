@@ -159,42 +159,42 @@ View details for the {{ dataset.name }} sales dataset.
                     <li class="list-group-item px-0 d-flex justify-content-between">
                         Product IDs
                         <span>
-                            {% if dataset.has_product_id %}Yes{% else %}No{% endif %}
+                            {{ available_data.product_id }}
                         </span>
                     </li>
 
                     <li class="list-group-item px-0 d-flex justify-content-between">
                         Customer IDs
                         <span>
-                            {% if dataset.has_customer_id %}Yes{% else %}No{% endif %}
+                            {{ available_data.customer_id }}
                         </span>
                     </li>
 
                     <li class="list-group-item px-0 d-flex justify-content-between">
                         Regions
                         <span>
-                            {% if dataset.has_region %}Yes{% else %}No{% endif %}
+                            {{ available_data.region }}
                         </span>
                     </li>
 
                     <li class="list-group-item px-0 d-flex justify-content-between">
                         Sales channels
                         <span>
-                            {% if dataset.has_sales_channel %}Yes{% else %}No{% endif %}
+                            {{ available_data.sales_channel }}
                         </span>
                     </li>
 
                     <li class="list-group-item px-0 d-flex justify-content-between">
                         Discounts
                         <span>
-                            {% if dataset.has_discount %}Yes{% else %}No{% endif %}
+                            {{ available_data.discount_percent }}
                         </span>
                     </li>
 
                     <li class="list-group-item px-0 d-flex justify-content-between">
                         Unit costs
                         <span>
-                            {% if dataset.has_unit_cost %}Yes{% else %}No{% endif %}
+                            {{ available_data.unit_cost }}
                         </span>
                     </li>
                 </ul>

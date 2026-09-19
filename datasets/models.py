@@ -114,6 +114,68 @@ class Dataset(models.Model):
     def __str__(self):
         return self.name
 
+    def _optional_data_status(
+        self,
+        column,
+        has_usable_data,
+    ):
+        if not has_usable_data:
+            return "Not provided"
+
+        for warning in self.warnings.all():
+            if (
+                warning.code
+                != "INCOMPLETE_OPTIONAL_DATA"
+            ):
+                continue
+
+            details = warning.details or {}
+
+            if column in details.get(
+                "missing_columns",
+                [],
+            ):
+                return "Not provided"
+
+            empty_rows = details.get(
+                "empty_value_rows",
+                {},
+            ).get(column)
+
+            if empty_rows:
+                return "Partial"
+
+        return "Available"
+
+    @property
+    def optional_data_statuses(self):
+        return {
+            "product_id": self._optional_data_status(
+                "product_id",
+                self.has_product_id,
+            ),
+            "customer_id": self._optional_data_status(
+                "customer_id",
+                self.has_customer_id,
+            ),
+            "region": self._optional_data_status(
+                "region",
+                self.has_region,
+            ),
+            "sales_channel": self._optional_data_status(
+                "sales_channel",
+                self.has_sales_channel,
+            ),
+            "discount_percent": self._optional_data_status(
+                "discount_percent",
+                self.has_discount,
+            ),
+            "unit_cost": self._optional_data_status(
+                "unit_cost",
+                self.has_unit_cost,
+            ),
+        }
+
 class DatasetWarning(models.Model):
     class Code(models.TextChoices):
         UNSUPPORTED_COLUMNS = (

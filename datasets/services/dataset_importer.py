@@ -24,6 +24,13 @@ def persist_processed_dataset(
 ):
     dataframe = result.dataframe
     source_columns = set(result.source_columns)
+    optional_statuses = result.optional_data_statuses
+
+    def has_usable_data(column):
+        return optional_statuses[column] in {
+            "available",
+            "partial",
+        }
 
     safe_filename = Path(
         original_filename.replace("\\", "/")
@@ -38,29 +45,27 @@ def persist_processed_dataset(
         original_filename=safe_filename,
         currency=currency,
         status=Dataset.Status.PROCESSING,
-        has_product_id=(
-            "product_id" in source_columns
+        has_product_id=has_usable_data(
+            "product_id"
         ),
-        has_customer_id=(
-            "customer_id" in source_columns
+        has_customer_id=has_usable_data(
+            "customer_id"
         ),
-        has_region=(
-            "region" in source_columns
+        has_region=has_usable_data(
+            "region"
         ),
-        has_sales_channel=(
-            "sales_channel" in source_columns
+        has_sales_channel=has_usable_data(
+            "sales_channel"
         ),
-        has_discount=(
-            "discount_percent" in source_columns
+        has_discount=has_usable_data(
+            "discount_percent"
         ),
-        has_unit_cost=(
-            "unit_cost" in source_columns
+        has_unit_cost=has_usable_data(
+            "unit_cost"
         ),
         has_complete_unit_cost=(
-            "unit_cost" in source_columns
-            and bool(
-                dataframe["unit_cost"].notna().all()
-            )
+            optional_statuses["unit_cost"]
+            == "available"
         ),
     )
 

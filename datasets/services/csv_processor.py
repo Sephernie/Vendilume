@@ -101,6 +101,7 @@ class CsvStructureResult:
     unsupported_columns: tuple[str, ...]
     duplicate_row_numbers: tuple[int, ...]
     warnings: tuple[CsvProcessingWarning, ...]
+    optional_data_statuses: dict[str, str]
 
 
 def read_and_validate_csv(file_path):
@@ -222,6 +223,12 @@ def read_and_validate_csv(file_path):
     dataframe = _clean_and_validate_text_values(
         dataframe
     )
+
+    (
+        optional_data_statuses,
+        optional_empty_value_rows,
+    ) = _inspect_optional_data(dataframe)
+
     dataframe = _validate_and_transform_dates(
         dataframe
     )
@@ -241,6 +248,7 @@ def read_and_validate_csv(file_path):
         dataframe=dataframe,
         unsupported_columns=unsupported_columns,
         duplicate_row_numbers=duplicate_row_numbers,
+        empty_value_rows=optional_empty_value_rows,
     )
     dataframe = _calculate_financial_values(
         dataframe
@@ -252,6 +260,7 @@ def read_and_validate_csv(file_path):
         unsupported_columns=unsupported_columns,
         duplicate_row_numbers=duplicate_row_numbers,
         warnings=warnings,
+        optional_data_statuses=optional_data_statuses,
     )
 
 
@@ -361,10 +370,45 @@ def _calculate_financial_values(dataframe):
     return dataframe
 
 
+def _inspect_optional_data(dataframe):
+    statuses = {}
+    empty_value_rows = {}
+
+    for column in OPTIONAL_COLUMNS:
+        if column not in dataframe.columns:
+            statuses[column] = "not_provided"
+            continue
+
+        empty_mask = (
+            dataframe[column]
+            .astype(str)
+            .str.strip()
+            .eq("")
+        )
+
+        empty_rows = [
+            index + 2
+            for index in dataframe.index[empty_mask]
+        ]
+
+        if empty_rows:
+            empty_value_rows[column] = empty_rows
+
+        if len(empty_rows) == len(dataframe):
+            statuses[column] = "not_provided"
+        elif empty_rows:
+            statuses[column] = "partial"
+        else:
+            statuses[column] = "available"
+
+    return statuses, empty_value_rows
+
+
 def _build_csv_warnings(
     dataframe,
     unsupported_columns,
     duplicate_row_numbers,
+    empty_value_rows,
 ):
     warnings = []
 
@@ -416,22 +460,6 @@ def _build_csv_warnings(
         for column in OPTIONAL_COLUMNS
         if column not in dataframe.columns
     ]
-
-    empty_value_rows = {}
-
-    for column in OPTIONAL_TEXT_COLUMNS:
-        if column not in dataframe.columns:
-            continue
-
-        rows = [
-            index + 2
-            for index in dataframe.index[
-                dataframe[column] == ""
-            ]
-        ]
-
-        if rows:
-            empty_value_rows[column] = rows
 
     if "unit_cost" in dataframe.columns:
         rows = [

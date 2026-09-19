@@ -100,7 +100,7 @@
           }
         }
       ],
-      "title": "Total Net Revenue (${currency})",
+      "title": "Net Revenue (${currency})",
       "type": "stat"
     },
     {
@@ -181,7 +181,7 @@
           }
         }
       ],
-      "title": "Total Orders",
+      "title": "Orders",
       "type": "stat"
     },
     {
@@ -262,7 +262,7 @@
           }
         }
       ],
-      "title": "Total Items Sold",
+      "title": "Items Sold",
       "type": "stat"
     },
     {
@@ -345,7 +345,7 @@
           }
         }
       ],
-      "title": "Average Order Value (${currency})",
+      "title": "Avg. Order Value (${currency})",
       "type": "stat"
     },
     {
@@ -1074,7 +1074,7 @@
   },
   "timezone": "browser",
   "title": "Vendilume Sales Overview",
-  "version": 32,
+  "version": 33,
   "uid": "ad6p79z",
   "id": 2004099088334848
 }
