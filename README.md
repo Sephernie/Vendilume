@@ -70,8 +70,11 @@ Unlike a generic chatbot attached to raw data, Vendilume calculates authoritativ
 
 ## AI-Enhanced Business Insights
 
+The analytics page places filters and AI-enhanced insights above the full-width Grafana dashboard:
+
 <p align="center">
-  <img src="docs/images/analytics-page.png" alt="Vendilume analytics page">
+  <img src="docs/images/analytics-insights.png" alt="Vendilume analytics filters and AI-enhanced insights"><br>
+  <img src="docs/images/analytics-dashboard.png" alt="Vendilume Grafana sales dashboard beneath the insights">
 </p>
 
 Vendilume does not ask the AI model to calculate business KPIs. The application first builds a versioned summary from verified database queries, then removes internal dataset identifiers and customer identifiers before creating the external prompt.
@@ -170,7 +173,7 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-The local configuration includes Django, PostgreSQL, and Grafana settings. Gemini is optional:
+The local configuration includes Django, PostgreSQL, and Grafana settings. Replace the placeholder secret and database password; set `DJANGO_DEBUG=True` only while developing locally. Gemini is optional:
 
 ```dotenv
 GEMINI_API_KEY=
@@ -205,11 +208,15 @@ Open `http://127.0.0.1:8000/accounts/login/` and sign in with the administrator 
 
 ### 4. Configure Grafana
 
-Import [`grafana/dashboards/vendilume-sales-overview.json`](grafana/dashboards/vendilume-sales-overview.json) into Grafana, connect it to the Vendilume PostgreSQL analytics view through a read-only database account, and place the resulting dashboard UID in `.env`.
+Create a read-only Grafana database account, configure local-only embedding, import [`grafana/dashboards/vendilume-sales-overview.json`](grafana/dashboards/vendilume-sales-overview.json), and set its imported dashboard UID in `.env`. The export contains datasource UIDs from its original Grafana instance, so map both panel and variable queries to your own PostgreSQL datasource during setup. Follow the complete [local setup guide](docs/LOCAL_SETUP.md).
+
+### 5. Use Vendilume
+
+Sign in, upload a CSV using the [included template](core/static/core/files/vendilume-sales-template.csv), and open the ready dataset from **Datasets**. Use **View Analytics** to explore the seven Grafana panels and apply the filters above them. **Generate AI Insights** makes an optional Gemini request; with no API key, the deterministic Smart Insights remain available. See the [user and demonstration guide](docs/DEMO_GUIDE.md).
 
 ## Testing
 
-The current suite contains **154 tests** with **96% application-code coverage**.
+The Phase 14 verification recorded **154 passing tests** with **96% application-code coverage**.
 
 Run the complete test suite locally:
 
@@ -218,7 +225,7 @@ python manage.py test
 python manage.py makemigrations --check --dry-run
 ```
 
-The current suite contains **154 tests** covering CSV validation, transactional persistence, database constraints, authenticated views, role permissions, direct-URL restrictions, role-aware interface behavior, administrator account management, the redesigned application shell and key pages, currency-choice validation, CSV-template access, Grafana integration, filters, trusted analytics calculations, privacy sanitization, Gemini response validation, timeout behavior, and fallback paths. Tests do not make live Gemini requests.
+The Phase 14 suite covered CSV validation, transactional persistence, database constraints, authenticated views, role permissions, direct-URL restrictions, role-aware interface behavior, administrator account management, the redesigned application shell and key pages, currency-choice validation, CSV-template access, Grafana integration, filters, trusted analytics calculations, privacy sanitization, Gemini response validation, timeout behavior, and fallback paths. Tests do not make live Gemini requests.
 
 ## Privacy, Reliability, and Limitations
 
@@ -242,7 +249,7 @@ Vendilume began with a twelve-phase roadmap. The original MVP was completed thro
 | 12 | User Accounts and Role-Based Access Control **[New]** | **Complete** |
 | 13 | Vendilume UI/UX Redesign **[New]** | **Complete** |
 | 14 | Testing, Security and Final Polish *(original Phase 11)* | **Complete** |
-| 15 | Final Documentation and Presentation *(original Phase 12)* | **Next** |
+| 15 | Final Documentation and Presentation *(original Phase 12)* | **In progress** |
 
 The full plan and revision history are preserved in [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md).
 
@@ -287,6 +294,9 @@ Vendilume/
 | [`DATA_SPECIFICATION.md`](docs/DATA_SPECIFICATION.md) | Supported CSV contract and calculated fields |
 | [`SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Architecture, responsibilities, and interactions |
 | [`DATABASE_DESIGN.md`](docs/DATABASE_DESIGN.md) | PostgreSQL schema, constraints, and analytics view |
+| [`CURRENT_ARCHITECTURE.md`](docs/CURRENT_ARCHITECTURE.md) | Implemented architecture, access model, and limitations |
+| [`LOCAL_SETUP.md`](docs/LOCAL_SETUP.md) | Reproducible local installation and Grafana configuration |
+| [`DEMO_GUIDE.md`](docs/DEMO_GUIDE.md) | User workflow, live demo script, and fallback plan |
 
 ## Project Scope
 

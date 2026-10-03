@@ -1,5 +1,7 @@
 # Vendilume System Design
 
+> **Document status:** This is the original MVP design record. Later phases added employee accounts, role-based access, optional Gemini insights, and a revised local deployment. For the implemented system, read [Current Architecture](CURRENT_ARCHITECTURE.md). Historical MVP exclusions and Docker Compose references below describe plans, not the final build.
+
 ## 1. Purpose
 
 This document defines the high-level software design of Vendilume. It describes the system boundary, component responsibilities, user interactions, data flow, failure behavior, Grafana integration, and local service architecture.

@@ -1,5 +1,7 @@
 # Vendilume — Software Requirements
 
+> **Document status:** Original MVP requirements baseline. The implemented system also includes role-based access, optional Gemini insights, and the redesigned interface. See [Current Architecture](CURRENT_ARCHITECTURE.md) and the phase records in [Project Plan](PROJECT_PLAN.md).
+
 ## 1. Purpose
 
 This document defines the functional and non-functional requirements of Vendilume.

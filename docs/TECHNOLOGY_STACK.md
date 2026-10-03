@@ -1,5 +1,7 @@
 # Vendilume — Technology Stack
 
+> **Document status:** Original technology selection record. Docker Compose was considered but is not part of the checked in application. The implemented stack additionally uses Google Gemini through `google-genai` for optional insights. See [Current Architecture](CURRENT_ARCHITECTURE.md) and [Local Setup](LOCAL_SETUP.md).
+
 ## 1. Purpose
 
 This document describes the primary technologies selected for Vendilume and the responsibility of each technology within the system.

@@ -1,5 +1,7 @@
 # Vendilume — Project Overview
 
+> **Document status:** Original project concept. The finished application adds employee accounts, three roles, an optional AI interpretation layer, and the interface described in [Current Architecture](CURRENT_ARCHITECTURE.md).
+
 ## 1. Introduction
 
 **Vendilume** is a web-based sales analytics and business intelligence application designed to transform raw sales data into clear, structured, and understandable business information.

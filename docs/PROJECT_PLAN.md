@@ -710,6 +710,20 @@ View Rule-Based and AI-Enhanced Insights
 
 Vendilume is documented, presentable, reproducible, and ready for university evaluation.
 
+### Phase 15 working status
+
+The source archive review identified historical MVP design documents that predate
+the final role and AI features, a brief Grafana installation section, and an
+analytics screenshot showing the superseded side-by-side layout. The Phase 15
+documentation adds a current-architecture guide, a local setup procedure, and a
+user and live-demo guide. The original design documents remain as records of
+the initial plan, with prominent links to the implemented architecture.
+
+The current stacked analytics page is captured in two screenshots, and an
+eight-slide presentation draft is ready. Before marking the phase complete,
+verify the local setup and live route on the presentation machine, and check
+the slides against the university's submission requirements.
+
 ---
 
 ## 3. Development Priorities
