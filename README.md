@@ -229,6 +229,7 @@ The Phase 14 suite covered CSV validation, transactional persistence, database c
 
 ## Privacy, Reliability, and Limitations
 
+- The verified deployment setup runs locally, with Grafana bound to localhost and anonymous dashboard access limited to the Viewer role. Shared-network or internet deployment requires additional configuration, including HTTPS and protected Grafana access.
 - The original CSV is never sent to Gemini.
 - Dataset names, internal dataset IDs, and customer identifiers are removed from the AI prompt.
 - Product, category, region, and sales-channel values may be included when needed for interpretation.
@@ -238,6 +239,8 @@ The Phase 14 suite covered CSV validation, transactional persistence, database c
 - AI explanations can be incomplete or imperfect and should be reviewed alongside the verified metrics.
 
 ## Development Roadmap
+
+Vendilume development is complete through **Phase 15**. The application includes CSV sales processing, interactive analytics, AI-enhanced business insights, role-based access control, and the completed testing and polish work. The **v1.0.0** milestone closes the planned development roadmap and supports the reviewed local deployment setup.
 
 Vendilume began with a twelve-phase roadmap. The original MVP was completed through Phase 10 and preserved as the Git tag [`v0.1-mvp`](https://github.com/Sephernie/Vendilume/tree/v0.1-mvp). Three post-MVP product phases were then inserted before final testing and documentation.
 
@@ -249,7 +252,7 @@ Vendilume began with a twelve-phase roadmap. The original MVP was completed thro
 | 12 | User Accounts and Role-Based Access Control **[New]** | **Complete** |
 | 13 | Vendilume UI/UX Redesign **[New]** | **Complete** |
 | 14 | Testing, Security and Final Polish *(original Phase 11)* | **Complete** |
-| 15 | Final Documentation and Presentation *(original Phase 12)* | **In progress** |
+| 15 | Final Documentation and Project Completion *(original Phase 12)* | **Complete** |
 
 The full plan and revision history are preserved in [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md).
 

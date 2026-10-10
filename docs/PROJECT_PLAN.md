@@ -2,9 +2,11 @@
 
 ## 1. Purpose
 
-This document defines the planned development process for Vendilume.
+This document records Vendilume's development roadmap and completion milestones.
 
-Development will be divided into sequential phases. Each phase should produce a clear result before work begins on the next major stage.
+Development is complete through **Phase 15**. The **v1.0.0** milestone closes the planned roadmap for the reviewed local deployment setup. The original MVP remains preserved as `v0.1-mvp`.
+
+Development followed sequential phases, each producing a clear result before the next major stage.
 
 The guiding principle is:
 
@@ -72,7 +74,7 @@ Phase 13  Vendilume UI/UX Redesign [New]
               ↓
 Phase 14  Testing, Security & Final Polish [Originally Phase 11]
               ↓
-Phase 15  Final Documentation & Presentation [Originally Phase 12]
+Phase 15  Final Documentation & Project Completion [Originally Phase 12]
 ```
 
 ---
@@ -671,28 +673,28 @@ limited to localhost and anonymous access remains read-only.
 
 ---
 
-## Phase 15 — Final Documentation & Presentation
+## Phase 15 — Final Documentation & Project Completion
 
-> **Roadmap history:** This is the original Phase 12, renumbered after three new phases were introduced.
+> **Roadmap history:** This is the original Phase 12, renumbered after three new phases were introduced. Its final repository scope covers documentation, demonstration guidance, and project completion.
+>
+> **Implementation status:** Complete.
 
 ### Goal
 
-Prepare Vendilume for final submission and demonstration.
+Finalize Vendilume's repository documentation and close the planned development roadmap with the v1.0.0 milestone.
 
 ### Tasks
 
-* Review repository structure.
-* Update the README.
-* Add installation instructions.
-* Add usage instructions.
-* Document environment setup.
-* Add application and dashboard screenshots.
-* Finalize technical documentation.
-* Review diagrams.
-* Prepare presentation material.
-* Prepare a live demonstration.
+* Review repository structure and documentation links.
+* Finalize the README and project status.
+* Document local installation and environment configuration.
+* Document user workflows, access roles, and AI fallback behavior.
+* Record the implemented architecture and deployment limitations.
+* Include current application and dashboard screenshots.
+* Preserve the original design documents and roadmap history.
+* Document a live demonstration of the core workflow.
 
-The final demonstration should follow the core workflow:
+The demonstration follows the core workflow:
 
 ```text
 Upload Dataset
@@ -706,23 +708,30 @@ Apply Filters
 View Rule-Based and AI-Enhanced Insights
 ```
 
+### Documentation Summary
+
+The final repository documentation includes an updated README, a
+current-architecture guide, a local setup procedure, and a user and live-demo
+guide. The original design documents remain as records of the initial plan,
+with links to the implemented architecture. Two current analytics screenshots
+show the full-width insights section followed by the Grafana dashboard.
+
 ### Completion
 
-Vendilume is documented, presentable, reproducible, and ready for university evaluation.
+Phase 15 is complete. Repository documentation and project status are finalized,
+and Vendilume development is complete through all fifteen planned phases.
+The v1.0.0 milestone identifies this completed application scope; `v0.1-mvp`
+continues to identify the original MVP through Phase 10.
 
-### Phase 15 working status
+Phase 14 verification remains the recorded technical baseline: **154 passing
+automated tests**, **96% application-code coverage**, and successful system,
+migration, security, responsive-layout, and accessibility checks. This
+documentation closeout introduces no application-code changes.
 
-The source archive review identified historical MVP design documents that predate
-the final role and AI features, a brief Grafana installation section, and an
-analytics screenshot showing the superseded side-by-side layout. The Phase 15
-documentation adds a current-architecture guide, a local setup procedure, and a
-user and live-demo guide. The original design documents remain as records of
-the initial plan, with prominent links to the implemented architecture.
-
-The current stacked analytics page is captured in two screenshots, and an
-eight-slide presentation draft is ready. Before marking the phase complete,
-verify the local setup and live route on the presentation machine, and check
-the slides against the university's submission requirements.
+The reviewed deployment setup is local, with Grafana bound to localhost and
+anonymous access limited to the Viewer role. Shared-network or internet
+deployment requires additional environment-specific configuration, including
+HTTPS and protected Grafana access.
 
 ---
 
@@ -748,6 +757,7 @@ The original workflow was completed through Phase 10 and preserved as
 `v0.1-mvp`. Phases 11 through 13 are deliberate post-MVP additions rather than
 unfinished parts of that original checkpoint.
 
-If development time becomes limited, the priority remains a reliable,
-demonstrable application. The `v0.1-mvp` tag provides a stable reference to the
-completed original scope while expanded features are developed and verified.
+All fifteen phases of the expanded roadmap are complete. The `v0.1-mvp` tag
+preserves the original scope, while the v1.0.0 milestone identifies the final
+application and repository documentation. Future enhancements or additional
+deployment targets belong to a subsequent roadmap.
